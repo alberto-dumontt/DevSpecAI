@@ -110,7 +110,7 @@ function App() {
         )}
 
         <footer>
-          <p>⚠️ Projeto pessoal — este serviço pode estar indisponível em alguns momentos.</p>
+          <p>Por estar hospedado na camada gratuita da Render, o sistema pode levar alguns minutos para iniciar após períodos de inatividade (cold start). Caso a aplicação não responda de imediato, aguarde alguns instantes e tente novamente.</p>
         </footer>
       </div>
     </>
