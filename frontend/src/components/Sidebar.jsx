@@ -25,8 +25,11 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`sidebar${open ? ' sidebar--open' : ''}`}>
         <div className="sidebar-brand">
           <div className="sidebar-brand-inner">
-            <BrandIcon />
-            <span className="sidebar-brand-name">dev for devs</span>
+            <div className="sidebar-brand-top">
+              <BrandIcon />
+              <span className="sidebar-brand-name">dev for devs</span>
+            </div>
+            <span className="sidebar-brand-rel">1:n · one to many</span>
           </div>
           <button className="sidebar-close-btn" onClick={onClose} aria-label="Fechar menu">
             ✕

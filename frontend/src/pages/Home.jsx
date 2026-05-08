@@ -9,9 +9,10 @@ export default function Home() {
   return (
     <div className="home">
       <section className="hero">
+        <span className="hero-badge">1:n · one to many</span>
         <h1 className="hero-title">{t('home.hero.tagline')}</h1>
         <p className="hero-desc">{t('home.hero.description')}</p>
-        <Link to="/spec" className="btn-primary">
+        <Link to="/community" className="btn-primary">
           {t('home.hero.cta')} <span className="btn-arrow">→</span>
         </Link>
       </section>
