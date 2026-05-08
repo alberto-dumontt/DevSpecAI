@@ -26,7 +26,7 @@ export default function Sidebar({ open, onClose }) {
         <div className="sidebar-brand">
           <div className="sidebar-brand-inner">
             <BrandIcon />
-            <span className="sidebar-brand-name">devs for devs</span>
+            <span className="sidebar-brand-name">dev for devs</span>
           </div>
           <button className="sidebar-close-btn" onClick={onClose} aria-label="Fechar menu">
             ✕
@@ -65,6 +65,18 @@ export default function Sidebar({ open, onClose }) {
             onClick={onClose}
           >
             {t('nav.roadmaps')}
+          </NavLink>
+        </nav>
+
+        <span className="sidebar-nav-label">{t('community.navLabel')}</span>
+
+        <nav className="sidebar-nav">
+          <NavLink
+            to="/community"
+            className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
+            onClick={onClose}
+          >
+            {t('community.navItem')}
           </NavLink>
         </nav>
 

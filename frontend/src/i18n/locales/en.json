@@ -11,28 +11,32 @@
   "home": {
     "hero": {
       "tagline": "Built by devs,\nfor devs.",
-      "description": "devs for devs is an open, free, and collaborative space — built by developers who were missing practical, accessible tools to learn, grow, and get things done day-to-day.",
+      "description": "No matter where you are in your career — just starting out, switching paths, or leveling up. dev for devs is a free, open space to grow alongside the community, with real guidance from people who've been through the same journey.",
       "cta": "Join in"
     },
     "offering": {
-      "title": "What you'll find here",
-      "tools": {
-        "title": "Tools",
-        "desc": "Free utilities built by the community to solve real problems — no sign-up, no plan, no nonsense."
-      },
-      "learning": {
-        "title": "Learning",
-        "desc": "Content shared by devs living the same day-to-day as you, focused on what actually matters in practice."
+      "title": "How we support you",
+      "start": {
+        "title": "Where to begin",
+        "desc": "Practical guides for those who don't know where to start — from your first line of code to your first job, no fluff."
       },
       "career": {
-        "title": "Career",
-        "desc": "Real-world resources for growing in tech — no expensive courses, no empty promises."
+        "title": "Career & Industry",
+        "desc": "Real conversations about the tech market, career paths, transitions, and the questions every dev has but few talk about."
+      },
+      "networking": {
+        "title": "Networking & Positioning",
+        "desc": "LinkedIn tips, how to build a professional presence, connect with the right people, and position yourself better in the field."
+      },
+      "resources": {
+        "title": "Tools & Resources",
+        "desc": "Utilities and materials that make learning and day-to-day work easier — free, no sign-up, no plan required."
       }
     },
     "creator": {
       "label": "Who's behind it",
       "role": "Developer & Builder",
-      "bio": "Hey, I'm Alberto Dumontt. I started devs for devs because I was missing a real space — no paywall, no fluff — where devs could find useful tools and grow together. This isn't a product: it's a community project, open and under construction. If you're a dev and want to contribute, you're welcome here.",
+      "bio": "Hey, I'm Alberto Dumontt. I built dev for devs because I was missing a real support space for developers — no paywall, no empty promises — where it's possible to grow together, ask real questions, and find guidance from people who've faced the same challenges. This isn't a product: it's a community being built. If you're a dev and want to contribute, you're welcome here.",
       "github": "github.com/alberto-dumontt"
     }
   },
@@ -60,6 +64,17 @@
   "loading": "Generating specification...",
   "error": "Sorry, DevSpecAI is currently unavailable.\nPlease try again in a few minutes.",
   "footer": "Hosted on Render's free tier — the first request may take a few minutes (cold start).",
+  "community": {
+    "navLabel": "Community",
+    "navItem": "Community",
+    "title": "Community",
+    "subtitle": "Share experiences, ask questions, and grow alongside other developers.",
+    "composerPlaceholder": "What do you want to share with the community?",
+    "tagsLabel": "Topic",
+    "publish": "Publish",
+    "addComment": "Add a comment...",
+    "noComments": "Be the first to comment."
+  },
   "roadmaps": {
     "index": {
       "title": "Roadmaps",

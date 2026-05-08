@@ -11,28 +11,32 @@
   "home": {
     "hero": {
       "tagline": "Criado por devs,\npara devs.",
-      "description": "devs for devs é um espaço aberto, gratuito e colaborativo — construído por desenvolvedores que sentiam falta de ferramentas práticas e acessíveis para crescer, aprender e se virar no dia a dia.",
+      "description": "Não importa onde você está na carreira — começando do zero, se reposicionando ou buscando evoluir. O dev for devs é um espaço aberto e gratuito para crescer junto com a comunidade, com orientação real de quem já passou pelo mesmo caminho.",
       "cta": "Fazer parte"
     },
     "offering": {
-      "title": "O que você encontra aqui",
-      "tools": {
-        "title": "Ferramentas",
-        "desc": "Utilitários gratuitos criados pela comunidade para resolver problemas reais — sem cadastro, sem plano, sem frescura."
-      },
-      "learning": {
-        "title": "Aprendizado",
-        "desc": "Conteúdo compartilhado por devs que vivem o mesmo dia a dia que você, focado no que realmente importa na prática."
+      "title": "Como podemos te apoiar",
+      "start": {
+        "title": "Por onde começar",
+        "desc": "Guias práticos para quem não sabe dar o primeiro passo — do primeiro código ao primeiro emprego, sem enrolação."
       },
       "career": {
-        "title": "Carreira",
-        "desc": "Recursos do mundo real para quem quer crescer na área — sem curso caro, sem promessa vazia."
+        "title": "Carreira & Mercado",
+        "desc": "Conversas reais sobre o mercado de tech, áreas de atuação, transição de carreira e as dúvidas que todo dev tem mas poucos falam."
+      },
+      "networking": {
+        "title": "Networking & Posicionamento",
+        "desc": "Dicas de LinkedIn, como construir presença profissional, se conectar com as pessoas certas e se posicionar melhor na área."
+      },
+      "resources": {
+        "title": "Ferramentas & Recursos",
+        "desc": "Utilitários e materiais que facilitam o aprendizado e o trabalho do dia a dia — gratuitos, sem cadastro, sem plano."
       }
     },
     "creator": {
       "label": "Quem está por trás",
       "role": "Developer & Builder",
-      "bio": "Oi, sou Alberto Dumontt. Comecei o devs for devs porque sentia falta de um espaço real — sem paywall, sem enrolação — onde devs pudessem encontrar ferramentas úteis e crescer juntos. Isso aqui não é um produto: é um projeto de comunidade, aberto e em construção. Se você é dev e quer contribuir, é só chegar.",
+      "bio": "Oi, sou Alberto Dumontt. Criei o dev for devs porque sentia falta de um espaço real de apoio para devs — sem paywall, sem promessa vazia — onde fosse possível crescer junto, tirar dúvidas de verdade e encontrar orientação de quem já viveu os mesmos desafios. Isso aqui não é um produto: é uma comunidade em construção. Se você é dev e quer contribuir, é só chegar.",
       "github": "github.com/alberto-dumontt"
     }
   },
@@ -60,6 +64,17 @@
   "loading": "Gerando especificação...",
   "error": "Desculpe, no momento o DevSpecAI está indisponível.\nTente novamente em alguns minutos.",
   "footer": "Hospedado na camada gratuita da Render — o primeiro acesso pode levar alguns minutos (cold start).",
+  "community": {
+    "navLabel": "Comunidade",
+    "navItem": "Comunidade",
+    "title": "Comunidade",
+    "subtitle": "Troque experiências, tire dúvidas e cresça junto com outros desenvolvedores.",
+    "composerPlaceholder": "O que você quer compartilhar com a comunidade?",
+    "tagsLabel": "Tópico",
+    "publish": "Publicar",
+    "addComment": "Adicione um comentário...",
+    "noComments": "Seja o primeiro a comentar."
+  },
   "roadmaps": {
     "index": {
       "title": "Roadmaps",
