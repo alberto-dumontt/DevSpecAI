@@ -1,185 +1,113 @@
-# DevSpecAI (Spring Boot API + React Frontend)
+# dev for devs — 1:n · one to many
 
-DevSpecAI is a full-stack project designed to help users generate project specifications tailored to their professional level, preferred technologies, and career goals. The backend is built using Java with Spring Boot, and it integrates with the [Cohere AI API](https://cohere.com/) to generate AI-driven project specs. The frontend, developed in React.js, consumes this API and delivers a clean user interface.
+A free, open space for developers to grow together — no paywall, no empty promises.  
+One dev shares knowledge, many devs benefit.
 
-This project was mainly focused on backend architecture and learning modern Java/Spring Boot concepts, while also deploying a production-ready full-stack app using Docker and Render.
+**Live:** [devspecai.onrender.com](https://devspecai.onrender.com)
 
-### 🌐 Live Demo:
-[https://devspecai.onrender.com/](https://devspecai.onrender.com/)
-
-
-⚠️ Live Demo Availability Notice: Please note that the live demo hosted on Render might experience occasional downtime, especially during periods of inactivity or due to Render's free-tier limitations.
-If the demo appears unavailable, you can run the project locally by following the instructions below.
-
-Thanks for understanding!
+> Hosted on Render's free tier — first request may take a few minutes (cold start).
 
 ---
 
-## ✨ Features (Backend Focus)
+## What is this?
 
-- ✅ User input validation with custom DTOs and Enums
-- ✅ Custom Exception Handling and Global Error Responses
-- ✅ External API Integration (Cohere AI) for AI text generation
-- ✅ Prompt Engineering layer for better AI output control
-- ✅ Service layer with clear separation of concerns
-- ✅ API response wrapping and standardization
-- ✅ Dockerized backend for easy deployment
-- ✅ Hosted on Render with environment-specific configurations
+**dev for devs** is a community platform built for developers at every stage of their career — whether you're writing your first line of code, switching paths, or leveling up. The platform brings together practical tools, curated study paths, community discussions, and developer recommendations in one place.
+
+This is not a product. It's a community being built.
 
 ---
 
-## 🛠️ Technologies Used
+## Features
 
-| Technology        | Purpose                                 |
-|-------------------|-----------------------------------------|
-| Java 21+          | Main backend language                   |
-| Spring Boot       | API development framework               |
-| Lombok            | Boilerplate code reduction              |
-| Spring Web        | REST API development                   |
-| Spring Validation | Input validation using annotations      |
-| Cohere AI API     | External AI API for project specification |
-| Docker            | Containerization for both backend|
-| Render            | Hosting platform for deployment         |
-| React.js          | Frontend development                   |
+### DevSpec.AI
+Generate personalized project specifications based on your tech stack, career goal, and experience level. Powered by Cohere AI.
 
----
+### Roadmaps
+Curated study paths recommended by developers from the community. Each roadmap includes step-by-step guidance, project ideas, and real-world context.
 
-## 🚧 Backend Architecture Overview
+- **Backend for Beginners** — recommended by Alberto Dumontt, Backend Engineer
 
-| Concept                  | Implementation Details                                      |
-|--------------------------|------------------------------------------------------------|
-| DTO (Data Transfer Objects) | Used for clean API request/response objects           |
-| Enums                    | For controlled values like `ProfessionalLevel`|
-| Service Layer            | Business logic and external API calls                     |
-| Exception Handling       | Global `@ControllerAdvice` for standard error responses   |
-| API Integration Layer    | RestTemplate-based call to Cohere AI API                  |
-| Prompt Engineering       | Dynamically constructs AI prompts based on user input     |
+### Community
+A social feed where developers share experiences, ask technical questions, discuss the market, and connect with each other.
+
+### Recommendations
+A collaborative showcase of tools recommended by developers, for developers. Each card includes a description, tags, and the dev who recommended it.
 
 ---
 
-## 📑 API Documentation
+## Tech Stack
 
-### Endpoint: Generate Project Specification
+**Frontend**
 
-**POST** `/api/spec`
+| Technology | Purpose |
+|---|---|
+| React 19 + Vite 6 | UI framework and build tool |
+| React Router v6 | Client-side routing |
+| react-i18next | Internationalization (EN / PT-BR) |
+| JetBrains Mono | Typography |
 
-**Description:**  
-Generates a project specification based on the user's profile.
+**Backend**
 
-**Request Body Example:**
+| Technology | Purpose |
+|---|---|
+| Java 21 + Spring Boot | REST API |
+| Cohere AI API | AI-powered spec generation |
+| Docker | Containerization |
+| Render | Deployment |
 
+---
+
+## API
+
+### `POST /api/spec`
+
+Generates a project specification based on user input.
+
+**Request**
 ```json
 {
-  "technologies": "Java, springboot and react.js",
-  "professionalLevel": ["JUNIOR", "MID", "SENIOR"],
-  "careerObjective": "I want to learn how to build APIs and deploy full-stack applications."
+  "technologies": "Java, Spring Boot, Redis",
+  "professionalLevel": "JUNIOR",
+  "careerObjective": "Backend developer role at a fintech"
 }
 ```
 
-| Field              | Type   | Description                                 |
-|------------------- |--------|-------------------------------------------|
-| technologies       | String | List of technology |
-| professionalLevel  | String | Enum: JUNIOR, MID, SENIOR                 |
-| careerObjective    | String | User's career goal description            |
+`professionalLevel` accepts: `JUNIOR` | `MID` | `SENIOR`
 
----
-
-### ✅ Success Response:
-
+**Response**
 ```json
 {
-  "spec": "As a Junior developer wanting to build APIs using Java and Spring Boot..."
+  "spec": "..."
 }
 ```
 
-### ❌ Error Response Example (400 Bad Request):
-
-```json
-{
-  "timestamp": "2025-06-14T16:44:38.097+00:00",
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Invalid value for field 'professionalLevel'. Allowed values: JUNIOR, MID, SENIOR"
-}
-```
 ---
 
-### ✅ Learning Goals Behind This Project
+## Running locally
 
-| Concept                  | Applied How?                               |
-| ------------------------ | ------------------------------------------ |
-| Spring Boot API Design   | DTOs, Services, Controllers, Exception Handling |
-| External API Consumption | Integration with Cohere AI API             |
-| Docker                   | Dockerfile for backend             |
-| Deployment               | Hosted both services on Render             |
-| Prompt Engineering       | Created dynamic prompts for AI text generation |
-| Frontend API Consumption | React app calling backend REST API         |
-
----
-
-### 📡 Deployment
-The app is deployed on Render:
-
-- Backend: https://backend-devspecai.onrender.com/
-- Frontend: https://devspecai.onrender.com/
-
----
-
-### 📌 Future Improvements
-- Add authentication layer (Spring Security or JWT)
-- Add Swagger/OpenAPI documentation
-- Improve frontend UI/UX
-- Expand AI prompt templates for more use cases
-
----
-
-## 🏃 Running Locally (Without Docker)
-
-If you prefer to run the project locally without Docker, follow these steps:
-
-### Backend (Spring Boot)
-
-**Prerequisites:**
-
-- Java 17+ or Java 21+
-- Maven
-
-**Steps:**
+**Backend**
 
 ```bash
-# Navigate to backend folder
 cd backend
-
-# Build the project (skipping tests)
 mvn clean install -DskipTests
-
-# Run the backend
 mvn spring-boot:run
 ```
-By default, the backend runs on:
 
-http://localhost:8080/
+Runs on `http://localhost:8080`
 
-
-### Frontend (React.js)
-
-**Prerequisites:**
-
-- Node.js (v18 or newer recommended)
-- NPM
-
-**Steps:**
+**Frontend**
 
 ```bash
-# Navigate to frontend folder
 cd frontend
-
-# Install dependencies
 npm install
-
-# Run the development server
 npm run dev
 ```
-By default, the frontend runs on:
 
-http://localhost:5173/
+Runs on `http://localhost:5173`
+
+---
+
+## About
+
+Built by [Alberto Dumontt](https://www.albertodumontt.com/).  
+If you're a dev and want to contribute, you're welcome here.

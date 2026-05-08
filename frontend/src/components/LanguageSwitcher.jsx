@@ -7,17 +7,17 @@ export default function LanguageSwitcher() {
   return (
     <div className="lang-switcher">
       <button
-        className={`lang-btn${current === 'pt-BR' ? ' active' : ''}`}
-        onClick={() => i18n.changeLanguage('pt-BR')}
-      >
-        PT
-      </button>
-      <span className="lang-sep">|</span>
-      <button
         className={`lang-btn${current === 'en' ? ' active' : ''}`}
         onClick={() => i18n.changeLanguage('en')}
       >
         EN
+      </button>
+      <span className="lang-sep">|</span>
+      <button
+        className={`lang-btn${current === 'pt-BR' ? ' active' : ''}`}
+        onClick={() => i18n.changeLanguage('pt-BR')}
+      >
+        PT
       </button>
     </div>
   );

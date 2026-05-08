@@ -3,6 +3,7 @@
     "home": "Home",
     "toolsLabel": "Tools",
     "devspecai": "DevSpec.AI",
+    "recommendations": "Recommendations",
     "studyLabel": "Study",
     "roadmapsLabel": "Roadmaps",
     "roadmaps": "Roadmaps",
@@ -74,6 +75,21 @@
     "publish": "Publish",
     "addComment": "Add a comment...",
     "noComments": "Be the first to comment."
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "subtitle": "Tools recommended by the community. Every suggestion comes from a dev who uses it daily.",
+    "tags": {
+      "all": "All",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "career": "Career",
+      "ai": "AI",
+      "productivity": "Productivity",
+      "study": "Study",
+      "free": "Free",
+      "paid": "Paid"
+    }
   },
   "roadmaps": {
     "index": {

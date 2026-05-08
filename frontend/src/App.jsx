@@ -5,6 +5,7 @@ import GenerateSpec from './pages/GenerateSpec';
 import RoadmapsIndex from './pages/roadmaps/RoadmapsIndex';
 import BackendBeginner from './pages/roadmaps/BackendBeginner';
 import Community from './pages/Community';
+import Recommendations from './pages/Recommendations';
 import './App.css';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="roadmaps" element={<RoadmapsIndex />} />
           <Route path="roadmaps/backend-beginner" element={<BackendBeginner />} />
           <Route path="community" element={<Community />} />
+          <Route path="recommendations" element={<Recommendations />} />
         </Route>
       </Routes>
     </BrowserRouter>
