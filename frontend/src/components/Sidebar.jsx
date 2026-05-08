@@ -1,8 +1,6 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
-
-const MYSTERY_WIDTHS = [62, 48, 75];
 
 function BrandIcon() {
   return (
@@ -76,6 +74,13 @@ export default function Sidebar({ open, onClose }) {
           >
             {t('nav.roadmaps')}
           </NavLink>
+          <NavLink
+            to="/courses"
+            className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
+            onClick={onClose}
+          >
+            {t('nav.courses')}
+          </NavLink>
         </nav>
 
         <span className="sidebar-nav-label">{t('community.navLabel')}</span>
@@ -88,19 +93,19 @@ export default function Sidebar({ open, onClose }) {
           >
             {t('community.navItem')}
           </NavLink>
+          <NavLink
+            to="/jobs"
+            className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
+            onClick={onClose}
+          >
+            {t('jobs.navItem')}
+          </NavLink>
         </nav>
 
-        <div className="sidebar-future">
-          <span className="sidebar-future-label">{t('nav.comingSoon')}</span>
-          {MYSTERY_WIDTHS.map((w, i) => (
-            <div key={i} className="sidebar-ghost-item">
-              <span className="ghost-dot" />
-              <span className="ghost-bar" style={{ width: `${w}%` }} />
-            </div>
-          ))}
-        </div>
-
         <div className="sidebar-footer">
+          <Link to="/login" className="sidebar-login-btn" onClick={onClose}>
+            {t('login.loginBtn')}
+          </Link>
           <LanguageSwitcher />
         </div>
       </aside>

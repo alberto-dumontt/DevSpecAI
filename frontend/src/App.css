@@ -206,6 +206,29 @@
 .sidebar-footer {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+.sidebar-login-btn {
+  display: block;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--white);
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: opacity 0.15s;
+}
+
+.sidebar-login-btn:hover {
+  opacity: 0.85;
 }
 
 /* ── Topbar (mobile trigger) ───────────────────────────────── */
@@ -528,7 +551,7 @@
 
 /* ── Generate Spec page ────────────────────────────────────── */
 .spec-page {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 4rem 2.5rem 3rem;
 }
@@ -1264,7 +1287,7 @@ select option {
 
 /* ── Community page ──────────────────────────────────────────── */
 .community-page {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 4rem 2.5rem 3rem;
   display: flex;
@@ -1996,6 +2019,14 @@ select option {
   color: var(--white);
 }
 
+.rec-course-platform {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .rec-tool-desc {
   font-size: 0.8rem;
   line-height: 1.75;
@@ -2027,6 +2058,12 @@ select option {
   padding-top: 0.75rem;
   border-top: 1px solid var(--border);
   margin-top: auto;
+}
+
+.rec-comment-toggle {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--text-3);
 }
 
 .rec-author-avatar {
@@ -2071,4 +2108,365 @@ select option {
   .rec-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Login ──────────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  font-family: var(--font);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.login-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.login-brand-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.login-brand-rel {
+  font-size: 0.6rem;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+.login-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.login-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  font-weight: 300;
+  margin: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.login-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+}
+
+.login-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-md);
+  border-radius: 5px;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  border-color: var(--border-lg);
+}
+
+.login-input::placeholder {
+  color: var(--text-3);
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  background: var(--white);
+  color: var(--bg);
+  border: none;
+  border-radius: 5px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.login-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.login-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.login-oauth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border-md);
+  border-radius: 5px;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.oauth-btn:hover {
+  border-color: var(--border-lg);
+  background: var(--surface-2);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-3);
+  font-size: 0.72rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-md);
+}
+
+.login-register-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.login-footer-text {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin: 0;
+}
+
+.login-register-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border-md);
+  border-radius: 4px;
+  padding: 0.2rem 0.65rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.login-register-btn:hover {
+  border-color: var(--border-lg);
+  color: var(--white);
+}
+
+.login-link {
+  color: var(--text-2);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.login-link:hover {
+  color: var(--white);
+}
+
+.login-back {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  text-decoration: none;
+  text-align: center;
+  transition: color 0.15s;
+}
+
+.login-back:hover {
+  color: var(--text-2);
+}
+
+/* ── Jobs ───────────────────────────────────────────────────── */
+.devradar-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-md);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.75rem;
+}
+
+.devradar-info-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.devradar-info-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.01em;
+}
+
+.devradar-info-desc {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--text-2);
+  font-weight: 300;
+  margin: 0;
+}
+
+
+.jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.job-card {
+  background: var(--surface);
+  border: 1px solid var(--border-md);
+  border-radius: 10px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.job-card:hover {
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.65);
+  transform: translateY(-2px);
+}
+
+.job-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.job-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.job-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.job-advertiser {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.job-date {
+  font-size: 0.68rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.job-description {
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--text-2);
+  font-weight: 300;
+  margin: 0;
+}
+
+.job-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.job-bot-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }

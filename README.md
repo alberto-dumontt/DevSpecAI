@@ -28,10 +28,16 @@ Curated study paths recommended by developers from the community. Each roadmap i
 - **Backend for Beginners** — recommended by Alberto Dumontt, Backend Engineer
 
 ### Community
-A social feed where developers share experiences, ask technical questions, discuss the market, and connect with each other.
+A social feed where developers share experiences, ask technical questions, discuss the market, and connect with each other. Posts support likes, comments, and topic tags.
 
 ### Recommendations
-A collaborative showcase of tools recommended by developers, for developers. Each card includes a description, tags, and the dev who recommended it.
+A collaborative showcase of tools recommended by developers, for developers. Each card includes a description, tags, the dev who recommended it, and a comments section.
+
+### Courses
+Community-recommended courses with honest picks from developers who've actually taken them. Filterable by area and pricing. Includes comments so devs can share their experience.
+
+### DevRadar
+A bot-powered job board that automatically scans for developer job openings and posts them to the community. Listings include title, advertiser, publish date, description, and tags by role and level.
 
 ---
 

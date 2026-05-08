@@ -17,47 +17,49 @@ function CommentIcon() {
   );
 }
 
-const FILTER_KEYS = ['all', 'frontend', 'backend', 'career', 'ai', 'productivity', 'study', 'free', 'paid'];
+const FILTER_KEYS = ['all', 'frontend', 'backend', 'devops', 'ai', 'career', 'free', 'paid'];
 
-const INITIAL_TOOLS = [
+const INITIAL_COURSES = [
   {
     id: 1,
-    name: 'Evernote',
-    description: 'Ferramenta excelente para organização de estudos, anotações, documentação pessoal e planejamento de aprendizado.',
+    name: 'CS50x — Introduction to Computer Science',
+    description: 'The best free computer science course available. Covers algorithms, data structures, C, Python, SQL, and web development. A solid foundation for any developer.',
+    platform: 'edX / Harvard',
     author: { name: 'Alberto Dumontt', role: 'Backend Engineer', initials: 'AD' },
-    tags: ['study', 'productivity'],
-    url: 'http://evernote.com/',
-    likes: 12,
+    tags: ['backend', 'free'],
+    url: 'https://cs50.harvard.edu/x/',
+    likes: 24,
     liked: false,
     comments: [
-      { id: 1, author: { name: 'Rafael Torres', initials: 'RT' }, content: 'Uso há anos para organizar anotações de estudo por linguagem. Funciona muito bem com o Markdown.', likes: 4, liked: false },
+      { id: 1, author: { name: 'Lucas Andrade', initials: 'LA' }, content: 'Fiz esse curso no começo da carreira e mudou minha forma de pensar. As semanas de C são pesadas mas valem cada segundo.', likes: 6, liked: false },
+      { id: 2, author: { name: 'Ana Lima', initials: 'AL' }, content: 'O projeto final é desafiador mas muito gratificante. Recomendo muito para quem quer entender o que acontece "por baixo do capô".', likes: 3, liked: false },
     ],
   },
 ];
 
-export default function Recommendations() {
+export default function Courses() {
   const { t } = useTranslation();
-  const [tools, setTools] = useState(INITIAL_TOOLS);
+  const [courses, setCourses] = useState(INITIAL_COURSES);
   const [openComments, setOpenComments] = useState(new Set());
   const [commentInputs, setCommentInputs] = useState({});
 
   const toggleLike = (id) => {
-    setTools(prev => prev.map(tool =>
-      tool.id === id
-        ? { ...tool, liked: !tool.liked, likes: tool.liked ? tool.likes - 1 : tool.likes + 1 }
-        : tool
+    setCourses(prev => prev.map(course =>
+      course.id === id
+        ? { ...course, liked: !course.liked, likes: course.liked ? course.likes - 1 : course.likes + 1 }
+        : course
     ));
   };
 
-  const toggleCommentLike = (toolId, commentId) => {
-    setTools(prev => prev.map(tool =>
-      tool.id === toolId
-        ? { ...tool, comments: tool.comments.map(c =>
+  const toggleCommentLike = (courseId, commentId) => {
+    setCourses(prev => prev.map(course =>
+      course.id === courseId
+        ? { ...course, comments: course.comments.map(c =>
             c.id === commentId
               ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 }
               : c
           )}
-        : tool
+        : course
     ));
   };
 
@@ -69,28 +71,28 @@ export default function Recommendations() {
     });
   };
 
-  const addComment = (toolId) => {
-    const text = (commentInputs[toolId] || '').trim();
+  const addComment = (courseId) => {
+    const text = (commentInputs[courseId] || '').trim();
     if (!text) return;
-    setTools(prev => prev.map(tool =>
-      tool.id === toolId
-        ? { ...tool, comments: [...tool.comments, { id: Date.now(), author: { name: 'You', initials: 'EU' }, content: text, likes: 0, liked: false }] }
-        : tool
+    setCourses(prev => prev.map(course =>
+      course.id === courseId
+        ? { ...course, comments: [...course.comments, { id: Date.now(), author: { name: 'You', initials: 'EU' }, content: text, likes: 0, liked: false }] }
+        : course
     ));
-    setCommentInputs(prev => ({ ...prev, [toolId]: '' }));
+    setCommentInputs(prev => ({ ...prev, [courseId]: '' }));
   };
 
   const [activeTag, setActiveTag] = useState('all');
 
   const filtered = activeTag === 'all'
-    ? tools
-    : tools.filter(tool => tool.tags.includes(activeTag));
+    ? courses
+    : courses.filter(course => course.tags.includes(activeTag));
 
   return (
     <div className="rec-page">
       <div className="rec-header">
-        <h1 className="rec-title">{t('recommendations.title')}</h1>
-        <p className="rec-subtitle">{t('recommendations.subtitle')}</p>
+        <h1 className="rec-title">{t('courses.title')}</h1>
+        <p className="rec-subtitle">{t('courses.subtitle')}</p>
       </div>
 
       <div className="rec-filters">
@@ -100,59 +102,63 @@ export default function Recommendations() {
             className={`rec-filter-btn${activeTag === key ? ' active' : ''}`}
             onClick={() => setActiveTag(key)}
           >
-            {t(`recommendations.tags.${key}`)}
+            {t(`courses.tags.${key}`)}
           </button>
         ))}
       </div>
 
       <div className="rec-grid">
-        {filtered.map(tool => (
-          <div key={tool.id} className="rec-card">
+        {filtered.map(course => (
+          <div key={course.id} className="rec-card">
             <div className="rec-card-top">
               <h3 className="rec-tool-name">
-                {tool.url
-                  ? <a href={tool.url} target="_blank" rel="noreferrer" className="rec-tool-link">{tool.name} ↗</a>
-                  : tool.name
+                {course.url
+                  ? <a href={course.url} target="_blank" rel="noreferrer" className="rec-tool-link">{course.name} ↗</a>
+                  : course.name
                 }
               </h3>
               <button
-                className={`rec-like-btn${tool.liked ? ' liked' : ''}`}
-                onClick={() => toggleLike(tool.id)}
+                className={`rec-like-btn${course.liked ? ' liked' : ''}`}
+                onClick={() => toggleLike(course.id)}
               >
-                <HeartIcon filled={tool.liked} />
-                <span>{tool.likes}</span>
+                <HeartIcon filled={course.liked} />
+                <span>{course.likes}</span>
               </button>
             </div>
 
-            <p className="rec-tool-desc">{tool.description}</p>
+            {course.platform && (
+              <span className="rec-course-platform">{course.platform}</span>
+            )}
+
+            <p className="rec-tool-desc">{course.description}</p>
 
             <div className="rec-tool-tags">
-              {tool.tags.map(tag => (
-                <span key={tag} className="rec-tool-tag">{t(`recommendations.tags.${tag}`)}</span>
+              {course.tags.map(tag => (
+                <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
               ))}
             </div>
 
             <div className="rec-card-footer">
-              <div className="rec-author-avatar">{tool.author.initials}</div>
+              <div className="rec-author-avatar">{course.author.initials}</div>
               <div className="rec-author-info">
-                <span className="rec-author-name">{tool.author.name}</span>
-                <span className="rec-author-role">{tool.author.role}</span>
+                <span className="rec-author-name">{course.author.name}</span>
+                <span className="rec-author-role">{course.author.role}</span>
               </div>
               <button
-                className={`post-action-btn rec-comment-toggle${openComments.has(tool.id) ? ' active' : ''}`}
-                onClick={() => toggleComments(tool.id)}
+                className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`}
+                onClick={() => toggleComments(course.id)}
               >
                 <CommentIcon />
-                <span>{tool.comments.length}</span>
+                <span>{course.comments.length}</span>
               </button>
             </div>
 
-            {openComments.has(tool.id) && (
+            {openComments.has(course.id) && (
               <div className="comments-section">
-                {tool.comments.length === 0 && (
+                {course.comments.length === 0 && (
                   <p className="comments-empty">{t('community.noComments')}</p>
                 )}
-                {tool.comments.map(comment => (
+                {course.comments.map(comment => (
                   <div key={comment.id} className="comment">
                     <div className="comment-avatar">{comment.author.initials}</div>
                     <div className="comment-body">
@@ -162,7 +168,7 @@ export default function Recommendations() {
                       <p className="comment-content">{comment.content}</p>
                       <button
                         className={`comment-like-btn${comment.liked ? ' liked' : ''}`}
-                        onClick={() => toggleCommentLike(tool.id, comment.id)}
+                        onClick={() => toggleCommentLike(course.id, comment.id)}
                       >
                         <HeartIcon filled={comment.liked} />
                         <span>{comment.likes}</span>
@@ -176,14 +182,14 @@ export default function Recommendations() {
                     type="text"
                     className="comment-input"
                     placeholder={t('community.addComment')}
-                    value={commentInputs[tool.id] || ''}
-                    onChange={e => setCommentInputs(prev => ({ ...prev, [tool.id]: e.target.value }))}
-                    onKeyDown={e => { if (e.key === 'Enter') addComment(tool.id); }}
+                    value={commentInputs[course.id] || ''}
+                    onChange={e => setCommentInputs(prev => ({ ...prev, [course.id]: e.target.value }))}
+                    onKeyDown={e => { if (e.key === 'Enter') addComment(course.id); }}
                   />
                   <button
                     className="btn-comment-send"
-                    onClick={() => addComment(tool.id)}
-                    disabled={!(commentInputs[tool.id] || '').trim()}
+                    onClick={() => addComment(course.id)}
+                    disabled={!(commentInputs[course.id] || '').trim()}
                   >
                     →
                   </button>

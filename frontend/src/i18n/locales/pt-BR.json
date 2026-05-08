@@ -7,6 +7,7 @@
     "studyLabel": "Estudo",
     "roadmapsLabel": "Roadmaps",
     "roadmaps": "Roadmaps",
+    "courses": "Cursos",
     "comingSoon": "em desenvolvimento"
   },
   "home": {
@@ -75,6 +76,54 @@
     "publish": "Publicar",
     "addComment": "Adicione um comentário...",
     "noComments": "Seja o primeiro a comentar."
+  },
+  "login": {
+    "loginBtn": "Login",
+    "title": "Bem-vindo de volta",
+    "subtitle": "Entre na sua conta dev for devs.",
+    "continueWith": "Continuar com",
+    "or": "ou",
+    "email": "E-mail",
+    "emailPlaceholder": "seu@email.com",
+    "password": "Senha",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Entrar",
+    "noAccount": "Ainda não tem conta?",
+    "register": "Cadastre-se",
+    "back": "← Voltar ao início"
+  },
+  "jobs": {
+    "navItem": "DevRadar",
+    "title": "DevRadar",
+    "subtitle": "Vagas para desenvolvedores, atualizadas automaticamente.",
+    "botLabel": "O que é o DevRadar?",
+    "botDesc": "O DevRadar é um robozinho que vasculha a internet em busca de vagas para devs e publica aqui automaticamente. Sem curadoria manual — só oportunidades encontradas e entregues de forma automática, pra comunidade sempre ter novidades fresquinhas.",
+    "tags": {
+      "all": "Todas",
+      "remote": "Remoto",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "fullstack": "Fullstack",
+      "mobile": "Mobile",
+      "devops": "DevOps",
+      "junior": "Júnior",
+      "mid": "Pleno",
+      "senior": "Sênior"
+    }
+  },
+  "courses": {
+    "title": "Cursos",
+    "subtitle": "Cursos recomendados pela comunidade. Indicações honestas de devs que realmente fizeram.",
+    "tags": {
+      "all": "Todos",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "devops": "DevOps",
+      "ai": "IA",
+      "career": "Carreira",
+      "free": "Gratuito",
+      "paid": "Pago"
+    }
   },
   "recommendations": {
     "title": "Recomendações",

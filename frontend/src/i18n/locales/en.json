@@ -7,6 +7,7 @@
     "studyLabel": "Study",
     "roadmapsLabel": "Roadmaps",
     "roadmaps": "Roadmaps",
+    "courses": "Courses",
     "comingSoon": "in development"
   },
   "home": {
@@ -75,6 +76,54 @@
     "publish": "Publish",
     "addComment": "Add a comment...",
     "noComments": "Be the first to comment."
+  },
+  "login": {
+    "loginBtn": "Login",
+    "title": "Welcome back",
+    "subtitle": "Sign in to your dev for devs account.",
+    "continueWith": "Continue with",
+    "or": "or",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Sign in",
+    "noAccount": "Don't have an account?",
+    "register": "Sign up",
+    "back": "← Back to home"
+  },
+  "jobs": {
+    "navItem": "DevRadar",
+    "title": "DevRadar",
+    "subtitle": "Job listings for developers, updated automatically.",
+    "botLabel": "What is DevRadar?",
+    "botDesc": "DevRadar is a bot that continuously scans the web for developer job openings and posts them here. No manual curation — just opportunities found and delivered automatically, so the community always has fresh listings.",
+    "tags": {
+      "all": "All",
+      "remote": "Remote",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "fullstack": "Fullstack",
+      "mobile": "Mobile",
+      "devops": "DevOps",
+      "junior": "Junior",
+      "mid": "Mid-level",
+      "senior": "Senior"
+    }
+  },
+  "courses": {
+    "title": "Courses",
+    "subtitle": "Courses recommended by the community. Honest picks from developers who've actually taken them.",
+    "tags": {
+      "all": "All",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "devops": "DevOps",
+      "ai": "AI",
+      "career": "Career",
+      "free": "Free",
+      "paid": "Paid"
+    }
   },
   "recommendations": {
     "title": "Recommendations",
