@@ -1,0 +1,145 @@
+{
+  "nav": {
+    "home": "Início",
+    "toolsLabel": "Ferramentas",
+    "devspecai": "DevSpec.AI",
+    "studyLabel": "Estudo",
+    "roadmapsLabel": "Roadmaps",
+    "roadmaps": "Roadmaps",
+    "comingSoon": "em desenvolvimento"
+  },
+  "home": {
+    "hero": {
+      "tagline": "Criado por devs,\npara devs.",
+      "description": "devs for devs é um espaço aberto, gratuito e colaborativo — construído por desenvolvedores que sentiam falta de ferramentas práticas e acessíveis para crescer, aprender e se virar no dia a dia.",
+      "cta": "Fazer parte"
+    },
+    "offering": {
+      "title": "O que você encontra aqui",
+      "tools": {
+        "title": "Ferramentas",
+        "desc": "Utilitários gratuitos criados pela comunidade para resolver problemas reais — sem cadastro, sem plano, sem frescura."
+      },
+      "learning": {
+        "title": "Aprendizado",
+        "desc": "Conteúdo compartilhado por devs que vivem o mesmo dia a dia que você, focado no que realmente importa na prática."
+      },
+      "career": {
+        "title": "Carreira",
+        "desc": "Recursos do mundo real para quem quer crescer na área — sem curso caro, sem promessa vazia."
+      }
+    },
+    "creator": {
+      "label": "Quem está por trás",
+      "role": "Developer & Builder",
+      "bio": "Oi, sou Alberto Dumontt. Comecei o devs for devs porque sentia falta de um espaço real — sem paywall, sem enrolação — onde devs pudessem encontrar ferramentas úteis e crescer juntos. Isso aqui não é um produto: é um projeto de comunidade, aberto e em construção. Se você é dev e quer contribuir, é só chegar.",
+      "github": "github.com/alberto-dumontt"
+    }
+  },
+  "spec": {
+    "title": "DevSpec.AI",
+    "description": "Preencha seu stack de tecnologias, objetivo profissional e nível de experiência — o DevSpec.AI gera uma especificação de projeto personalizada, pronta para usar como guia de estudo, portfólio ou preparação para entrevistas técnicas."
+  },
+  "form": {
+    "technologies": "Tecnologias",
+    "technologiesPlaceholder": "Ex: API com Java e Redis",
+    "goal": "Objetivo profissional",
+    "goalPlaceholder": "Ex: Vaga para dev Java Júnior em fintech",
+    "level": "Nível profissional",
+    "levelSelect": "Selecione o nível",
+    "junior": "Júnior",
+    "mid": "Pleno",
+    "senior": "Sênior",
+    "generate": "Gerar Especificações"
+  },
+  "result": {
+    "title": "Especificação gerada",
+    "copy": "Copiar",
+    "copied": "Copiado!"
+  },
+  "loading": "Gerando especificação...",
+  "error": "Desculpe, no momento o DevSpecAI está indisponível.\nTente novamente em alguns minutos.",
+  "footer": "Hospedado na camada gratuita da Render — o primeiro acesso pode levar alguns minutos (cold start).",
+  "roadmaps": {
+    "index": {
+      "title": "Roadmaps",
+      "subtitle": "Trilhas de estudo curadas por profissionais da comunidade. Cada roadmap é uma recomendação real, baseada em experiência prática.",
+      "comingSoon": "em breve"
+    },
+    "backendBeginner": {
+      "navLabel": "Backend Iniciante",
+      "category": "Roadmap · Backend",
+      "level": "Iniciante",
+      "cardDesc": "Fundamentos do desenvolvimento backend: lógica, linguagem, banco de dados, APIs REST e deploy.",
+      "title": "Backend para Iniciantes",
+      "subtitle": "Um guia prático e progressivo para quem está começando na área de desenvolvimento backend. Siga os passos na ordem, sem pressa — consistência vale mais do que velocidade.",
+      "recommendedBy": "Recomendado por",
+      "recommenderRole": "Developer Backend",
+      "recommenterExp": "Desenvolvedor há mais de 3 anos",
+      "recommenterBio": "Com foco em backend, APIs REST e arquitetura de sistemas, Alberto acredita que o aprendizado se consolida na prática — construindo projetos reais, errando, ajustando e evoluindo. Este roadmap reflete o caminho que ele trilhou e recomenda para quem está começando.",
+      "projectIdeas": {
+        "title": "Ideias de Projetos",
+        "subtitle": "Projetos sugeridos por Alberto Dumontt — fora do óbvio, pensados para consolidar o que você aprendeu com desafios reais.",
+        "conceptsLabel": "Conceitos praticados",
+        "stackLabel": "Stack sugerida",
+        "items": [
+          {
+            "title": "Sistema Bancário com POO",
+            "desc": "Implemente um sistema bancário do zero. Crie classes como Conta, ContaCorrente, ContaPoupança e Cliente, aplicando herança, encapsulamento e polimorfismo. Adicione regras reais: limite de cheque especial, rendimento de poupança e histórico de transações. Você vai entender POO de verdade quando precisar modelar algo com regras de negócio reais — não um exemplo didático, mas um sistema que funciona.",
+            "concepts": ["Herança", "Encapsulamento", "Polimorfismo", "Interfaces", "Regras de Negócio"],
+            "stack": ["Java", "Python", "Estrutura de Dados", "POO"]
+          },
+          {
+            "title": "API REST com Arquitetura em Camadas",
+            "desc": "Construa uma API de gerenciamento (finanças pessoais, estoque ou tarefas) aplicando separação de responsabilidades: Controller recebe a requisição, Service executa a lógica de negócio, Repository conversa com o banco. Adicione autenticação JWT e validação de entrada. É o projeto que simula um ambiente de trabalho real — e que você vai poder mostrar em entrevistas.",
+            "concepts": ["Arquitetura em Camadas", "Controller", "Service", "Repository", "JWT", "Validação"],
+            "stack": ["Spring Boot", "Express", "Flask", "PostgreSQL", "REST"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Lógica de Programação",
+          "desc": "Antes de qualquer linguagem, aprenda a pensar como programador: variáveis, condicionais, loops, funções e estruturas de dados básicas. É a fundação de tudo — sem ela, qualquer linguagem vai parecer magia.",
+          "tags": ["Algoritmos", "Pseudocódigo", "Estruturas de Dados", "Fluxograma"]
+        },
+        {
+          "title": "Escolha sua Primeira Linguagem",
+          "desc": "Escolha uma linguagem e vá fundo. Junto com a sintaxe, aprenda os dois pilares que definem como você vai pensar e escrever código profissional: Estrutura de Dados (listas, pilhas, filas, mapas) e Programação Orientada a Objetos — classe, herança, encapsulamento e polimorfismo. Não avance sem entender esses conceitos.",
+          "tags": ["Java", "Python", "JavaScript", "Estrutura de Dados", "POO", "Tipagem"]
+        },
+        {
+          "title": "Git & Controle de Versão",
+          "desc": "Aprenda Git desde o primeiro projeto. Saiba fazer commit, push, pull, criar branches e resolver conflitos. Use o GitHub para guardar e mostrar seu trabalho — é seu portfólio real.",
+          "tags": ["Git", "GitHub", "Branch", "CLI", "Histórico de código"]
+        },
+        {
+          "title": "Banco de Dados Relacional",
+          "desc": "Aprenda SQL de verdade: criar tabelas, inserir, atualizar, deletar e consultar dados com filtros, joins e agrupamentos. Entenda relacionamentos (1:1, 1:N, N:M) e como modelar um banco do zero.",
+          "tags": ["SQL", "PostgreSQL", "MySQL", "Modelagem", "Joins"]
+        },
+        {
+          "title": "Construa sua Primeira API REST",
+          "desc": "Entenda HTTP na prática — verbos (GET, POST, PUT, DELETE), status codes e JSON. Crie uma API com endpoints reais usando o framework da sua linguagem. Teste com Postman ou Insomnia.",
+          "tags": ["HTTP", "REST", "JSON", "Spring Boot", "Express", "Flask", "Postman"]
+        },
+        {
+          "title": "Autenticação & Segurança Básica",
+          "desc": "Aprenda a proteger sua API: autentique usuários com JWT, faça hash de senhas com bcrypt e nunca salve dado sensível em texto puro. Segurança não é opcional — começa no primeiro endpoint.",
+          "tags": ["JWT", "bcrypt", "Autenticação", "Autorização", "Boas práticas"]
+        },
+        {
+          "title": "Deploy — Coloque no Ar",
+          "desc": "Suba sua API para a internet. Aprenda sobre variáveis de ambiente, como usar plataformas gratuitas e o básico de um fluxo de deploy. Projeto que ninguém acessa não existe.",
+          "tags": ["Render", "Railway", "Variáveis de ambiente", "CI básico", "Logs"]
+        }
+      ]
+    },
+    "locked": {
+      "backendMid": { "label": "Backend Pleno", "area": "Backend" },
+      "cyberSecurity": { "label": "Cyber Security", "area": "Segurança" },
+      "ai": { "label": "Inteligência Artificial", "area": "IA" },
+      "devops": { "label": "DevOps", "area": "DevOps" }
+    }
+  }
+}

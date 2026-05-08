@@ -1,0 +1,145 @@
+{
+  "nav": {
+    "home": "Home",
+    "toolsLabel": "Tools",
+    "devspecai": "DevSpec.AI",
+    "studyLabel": "Study",
+    "roadmapsLabel": "Roadmaps",
+    "roadmaps": "Roadmaps",
+    "comingSoon": "in development"
+  },
+  "home": {
+    "hero": {
+      "tagline": "Built by devs,\nfor devs.",
+      "description": "devs for devs is an open, free, and collaborative space — built by developers who were missing practical, accessible tools to learn, grow, and get things done day-to-day.",
+      "cta": "Join in"
+    },
+    "offering": {
+      "title": "What you'll find here",
+      "tools": {
+        "title": "Tools",
+        "desc": "Free utilities built by the community to solve real problems — no sign-up, no plan, no nonsense."
+      },
+      "learning": {
+        "title": "Learning",
+        "desc": "Content shared by devs living the same day-to-day as you, focused on what actually matters in practice."
+      },
+      "career": {
+        "title": "Career",
+        "desc": "Real-world resources for growing in tech — no expensive courses, no empty promises."
+      }
+    },
+    "creator": {
+      "label": "Who's behind it",
+      "role": "Developer & Builder",
+      "bio": "Hey, I'm Alberto Dumontt. I started devs for devs because I was missing a real space — no paywall, no fluff — where devs could find useful tools and grow together. This isn't a product: it's a community project, open and under construction. If you're a dev and want to contribute, you're welcome here.",
+      "github": "github.com/alberto-dumontt"
+    }
+  },
+  "spec": {
+    "title": "DevSpec.AI",
+    "description": "Fill in your tech stack, career goal, and experience level — DevSpec.AI generates a personalized project specification, ready to use as a study guide, portfolio piece, or prep for technical interviews."
+  },
+  "form": {
+    "technologies": "Technologies",
+    "technologiesPlaceholder": "e.g. REST API with Java and Redis",
+    "goal": "Career goal",
+    "goalPlaceholder": "e.g. Junior Java dev role at a fintech",
+    "level": "Professional level",
+    "levelSelect": "Select a level",
+    "junior": "Junior",
+    "mid": "Mid-level",
+    "senior": "Senior",
+    "generate": "Generate Spec"
+  },
+  "result": {
+    "title": "Generated specification",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "loading": "Generating specification...",
+  "error": "Sorry, DevSpecAI is currently unavailable.\nPlease try again in a few minutes.",
+  "footer": "Hosted on Render's free tier — the first request may take a few minutes (cold start).",
+  "roadmaps": {
+    "index": {
+      "title": "Roadmaps",
+      "subtitle": "Study paths curated by community professionals. Each roadmap is a real recommendation, based on hands-on experience.",
+      "comingSoon": "coming soon"
+    },
+    "backendBeginner": {
+      "navLabel": "Backend Beginner",
+      "category": "Roadmap · Backend",
+      "level": "Beginner",
+      "cardDesc": "Backend development fundamentals: logic, language, databases, REST APIs, and deployment.",
+      "title": "Backend for Beginners",
+      "subtitle": "A practical, step-by-step guide for anyone starting out in backend development. Follow the steps in order, without rushing — consistency is worth more than speed.",
+      "recommendedBy": "Recommended by",
+      "recommenderRole": "Backend Developer",
+      "recommenterExp": "Developer for 3+ years",
+      "recommenterBio": "Focused on backend, REST APIs, and system architecture, Alberto believes learning is consolidated through practice — building real projects, making mistakes, adjusting, and evolving. This roadmap reflects the path he took and recommends for those just starting out.",
+      "projectIdeas": {
+        "title": "Project Ideas",
+        "subtitle": "Projects suggested by Alberto Dumontt — out of the ordinary, designed to consolidate what you've learned with real challenges.",
+        "conceptsLabel": "Concepts practiced",
+        "stackLabel": "Suggested stack",
+        "items": [
+          {
+            "title": "Banking System with OOP",
+            "desc": "Build a banking system from scratch. Create classes like Account, CheckingAccount, SavingsAccount, and Client, applying inheritance, encapsulation, and polymorphism. Add real rules: overdraft limits, savings interest, and transaction history. You'll truly understand OOP when you have to model something with real business logic — not a textbook example, but a system that actually works.",
+            "concepts": ["Inheritance", "Encapsulation", "Polymorphism", "Interfaces", "Business Rules"],
+            "stack": ["Java", "Python", "Data Structures", "OOP"]
+          },
+          {
+            "title": "REST API with Layered Architecture",
+            "desc": "Build a management API (personal finance, inventory, or tasks) applying separation of concerns: Controller receives the request, Service executes business logic, Repository talks to the database. Add JWT authentication and input validation. This is the project that simulates a real work environment — and one you'll actually be able to show in interviews.",
+            "concepts": ["Layered Architecture", "Controller", "Service", "Repository", "JWT", "Validation"],
+            "stack": ["Spring Boot", "Express", "Flask", "PostgreSQL", "REST"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "title": "Programming Logic",
+          "desc": "Before any language, learn to think like a programmer: variables, conditionals, loops, functions, and basic data structures. This is the foundation of everything — without it, any language will feel like magic.",
+          "tags": ["Algorithms", "Pseudocode", "Data Structures", "Flowcharts"]
+        },
+        {
+          "title": "Pick Your First Language",
+          "desc": "Choose one language and go deep. Alongside the syntax, learn the two pillars that define how you'll think and write professional code: Data Structures (lists, stacks, queues, maps) and Object-Oriented Programming — classes, inheritance, encapsulation, and polymorphism. Don't move on without understanding these concepts.",
+          "tags": ["Java", "Python", "JavaScript", "Data Structures", "OOP", "Typing"]
+        },
+        {
+          "title": "Git & Version Control",
+          "desc": "Learn Git from your very first project. Know how to commit, push, pull, create branches, and resolve conflicts. Use GitHub to store and showcase your work — it's your real portfolio.",
+          "tags": ["Git", "GitHub", "Branching", "CLI", "Code history"]
+        },
+        {
+          "title": "Relational Databases",
+          "desc": "Learn real SQL: create tables, insert, update, delete, and query data with filters, joins, and groupings. Understand relationships (1:1, 1:N, N:M) and how to model a database from scratch.",
+          "tags": ["SQL", "PostgreSQL", "MySQL", "Modeling", "Joins"]
+        },
+        {
+          "title": "Build Your First REST API",
+          "desc": "Understand HTTP in practice — verbs (GET, POST, PUT, DELETE), status codes, and JSON. Build an API with real endpoints using your language's framework. Test it with Postman or Insomnia.",
+          "tags": ["HTTP", "REST", "JSON", "Spring Boot", "Express", "Flask", "Postman"]
+        },
+        {
+          "title": "Authentication & Basic Security",
+          "desc": "Learn to protect your API: authenticate users with JWT, hash passwords with bcrypt, and never store sensitive data as plain text. Security isn't optional — it starts at your first endpoint.",
+          "tags": ["JWT", "bcrypt", "Authentication", "Authorization", "Best practices"]
+        },
+        {
+          "title": "Deploy — Go Live",
+          "desc": "Put your API on the internet. Learn about environment variables, how to use free platforms, and the basics of a deploy flow. A project nobody can access doesn't exist.",
+          "tags": ["Render", "Railway", "Env Variables", "Basic CI", "Logs"]
+        }
+      ]
+    },
+    "locked": {
+      "backendMid": { "label": "Backend Mid-level", "area": "Backend" },
+      "cyberSecurity": { "label": "Cyber Security", "area": "Security" },
+      "ai": { "label": "Artificial Intelligence", "area": "AI" },
+      "devops": { "label": "DevOps", "area": "DevOps" }
+    }
+  }
+}
