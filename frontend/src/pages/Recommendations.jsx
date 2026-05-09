@@ -48,6 +48,8 @@ export default function Recommendations() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
 
+  const [sortBy, setSortBy] = useState('recent');
+
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
   const [updating, setUpdating] = useState(false);
@@ -289,7 +291,12 @@ export default function Recommendations() {
       tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
     }));
 
-  const filtered = activeTag === 'all' ? recs : recs.filter(r => r.tags.includes(activeTag));
+  const tagFiltered = activeTag === 'all' ? recs : recs.filter(r => r.tags.includes(activeTag));
+  const filtered = [...tagFiltered].sort((a, b) => {
+    if (sortBy === 'liked') return b.like_count - a.like_count;
+    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
   const userInitials = initials(user?.user_metadata?.name ?? user?.email ?? '');
 
   return (
@@ -306,17 +313,24 @@ export default function Recommendations() {
         <p className="rec-subtitle">{t('recommendations.subtitle')}</p>
       </div>
 
-      {/* ── Filters ── */}
-      <div className="rec-filters">
-        {FILTER_KEYS.map(key => (
-          <button
-            key={key}
-            className={`rec-filter-btn${activeTag === key ? ' active' : ''}`}
-            onClick={() => setActiveTag(key)}
-          >
-            {t(`recommendations.tags.${key}`)}
-          </button>
-        ))}
+      {/* ── Filters + Sort ── */}
+      <div className="rec-controls">
+        <div className="rec-filters">
+          {FILTER_KEYS.map(key => (
+            <button
+              key={key}
+              className={`rec-filter-btn${activeTag === key ? ' active' : ''}`}
+              onClick={() => setActiveTag(key)}
+            >
+              {t(`recommendations.tags.${key}`)}
+            </button>
+          ))}
+        </div>
+        <select className="rec-sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+          <option value="recent">{t('common.sortRecent')}</option>
+          <option value="oldest">{t('common.sortOldest')}</option>
+          <option value="liked">{t('common.sortLiked')}</option>
+        </select>
       </div>
 
       {/* ── Composer ── */}
@@ -358,10 +372,14 @@ export default function Recommendations() {
                   className="login-input register-textarea"
                   placeholder={t('recommendations.form.descriptionPlaceholder')}
                   value={form.description}
-                  onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                  onChange={e => setForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
                   rows={3}
+                  maxLength={600}
                   required
                 />
+                <p className={`rec-char-count${form.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
+                  {form.description.length}/600
+                </p>
               </div>
 
               <div>
@@ -443,10 +461,14 @@ export default function Recommendations() {
                   <textarea
                     className="rec-edit-input rec-edit-textarea"
                     value={editForm.description}
-                    onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
+                    onChange={e => setEditForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
                     rows={4}
+                    maxLength={600}
                     required
                   />
+                  <p className={`rec-char-count${editForm.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
+                    {editForm.description.length}/600
+                  </p>
                 </div>
                 <div>
                   <span className="login-label">{t('recommendations.form.tags')}</span>

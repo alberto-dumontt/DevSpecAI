@@ -236,7 +236,10 @@
   "common": {
     "edit": "Edit",
     "delete": "Delete",
-    "confirmDelete": "Are you sure you want to delete this?"
+    "confirmDelete": "Are you sure you want to delete this?",
+    "sortRecent": "Most recent",
+    "sortOldest": "Oldest",
+    "sortLiked": "Most liked"
   },
   "roadmaps": {
     "index": {
