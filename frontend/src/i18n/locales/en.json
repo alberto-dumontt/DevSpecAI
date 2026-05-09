@@ -189,6 +189,20 @@
   "recommendations": {
     "title": "Recommendations",
     "subtitle": "Tools recommended by the community. Every suggestion comes from a dev who uses it daily.",
+    "suggest": "Suggest a tool",
+    "loading": "Loading recommendations...",
+    "empty": "No recommendations yet. Be the first to suggest one!",
+    "loginToComment": "Sign in to comment",
+    "form": {
+      "name": "Tool name",
+      "namePlaceholder": "e.g. Notion, Postman, Linear...",
+      "description": "Why do you recommend it?",
+      "descriptionPlaceholder": "Share how you use it daily and why it's worth it...",
+      "url": "Link",
+      "tags": "Categories",
+      "submit": "Publish recommendation",
+      "submitting": "Publishing..."
+    },
     "tags": {
       "all": "All",
       "frontend": "Frontend",

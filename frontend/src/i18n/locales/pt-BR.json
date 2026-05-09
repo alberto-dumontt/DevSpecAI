@@ -189,6 +189,20 @@
   "recommendations": {
     "title": "Recomendações",
     "subtitle": "Ferramentas recomendadas pela comunidade. Cada sugestão vem de um dev que usa no dia a dia.",
+    "suggest": "Sugerir ferramenta",
+    "loading": "Carregando recomendações...",
+    "empty": "Nenhuma recomendação encontrada. Seja o primeiro a sugerir!",
+    "loginToComment": "Faça login para comentar",
+    "form": {
+      "name": "Nome da ferramenta",
+      "namePlaceholder": "Ex: Notion, Postman, Linear...",
+      "description": "Por que você recomenda?",
+      "descriptionPlaceholder": "Conte como usa no dia a dia e por que vale a pena...",
+      "url": "Link",
+      "tags": "Categorias",
+      "submit": "Publicar recomendação",
+      "submitting": "Publicando..."
+    },
     "tags": {
       "all": "Todos",
       "frontend": "Frontend",
