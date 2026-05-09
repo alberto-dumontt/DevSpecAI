@@ -174,11 +174,11 @@
     "viewProfile": "Ver perfil"
   },
   "jobs": {
-    "navItem": "DevRadar",
-    "title": "DevRadar",
-    "subtitle": "Vagas para desenvolvedores, atualizadas automaticamente.",
-    "botLabel": "O que é o DevRadar?",
-    "botDesc": "O DevRadar é um robozinho que vasculha a internet em busca de vagas para devs e publica aqui automaticamente. Sem curadoria manual — só oportunidades encontradas e entregues de forma automática, pra comunidade sempre ter novidades fresquinhas.",
+    "navItem": "DevRadar.AI",
+    "title": "DevRadar.AI",
+    "subtitle": "Vagas para desenvolvedores, atualizadas automaticamente. Atualmente com foco em oportunidades no Brasil.",
+    "botLabel": "O que é o DevRadar.AI?",
+    "botDesc": "O DevRadar.AI é um robozinho que vasculha a internet em busca de vagas para devs e publica aqui automaticamente. Sem curadoria manual — só oportunidades encontradas e entregues de forma automática. Por enquanto, com foco no mercado brasileiro.",
     "tags": {
       "all": "Todas",
       "remote": "Remoto",

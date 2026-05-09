@@ -174,11 +174,11 @@
     "viewProfile": "View profile"
   },
   "jobs": {
-    "navItem": "DevRadar",
-    "title": "DevRadar",
-    "subtitle": "Job listings for developers, updated automatically.",
-    "botLabel": "What is DevRadar?",
-    "botDesc": "DevRadar is a bot that continuously scans the web for developer job openings and posts them here. No manual curation — just opportunities found and delivered automatically, so the community always has fresh listings.",
+    "navItem": "DevRadar.AI",
+    "title": "DevRadar.AI",
+    "subtitle": "Job listings for developers, updated automatically. Currently covering opportunities in Brazil.",
+    "botLabel": "What is DevRadar.AI?",
+    "botDesc": "DevRadar.AI is a bot that continuously scans the web for developer job openings and posts them here. No manual curation — just opportunities found and delivered automatically. Currently focused on the Brazilian market.",
     "tags": {
       "all": "All",
       "remote": "Remote",

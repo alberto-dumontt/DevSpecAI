@@ -65,6 +65,13 @@ export default function Sidebar({ open, onClose }) {
             {t('nav.devspecai')}
           </NavLink>
           <NavLink
+            to="/jobs"
+            className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
+            onClick={onClose}
+          >
+            {t('jobs.navItem')}
+          </NavLink>
+          <NavLink
             to="/recommendations"
             className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
             onClick={onClose}
@@ -101,13 +108,6 @@ export default function Sidebar({ open, onClose }) {
             onClick={onClose}
           >
             {t('community.navItem')}
-          </NavLink>
-          <NavLink
-            to="/jobs"
-            className={({ isActive }) => `sidebar-link sidebar-link--tool${isActive ? ' active' : ''}`}
-            onClick={onClose}
-          >
-            {t('jobs.navItem')}
           </NavLink>
         </nav>
 

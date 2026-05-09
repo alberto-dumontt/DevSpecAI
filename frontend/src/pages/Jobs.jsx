@@ -113,7 +113,7 @@ export default function Jobs() {
               </div>
               <div className="job-bot-badge">
                 <BotIcon />
-                <span>DevRadar</span>
+                <span>DevRadar.AI</span>
               </div>
             </div>
           </div>
