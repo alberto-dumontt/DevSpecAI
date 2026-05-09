@@ -1,5 +1,6 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 import LanguageSwitcher from './LanguageSwitcher';
 
 function BrandIcon() {
@@ -15,6 +16,14 @@ function BrandIcon() {
 
 export default function Sidebar({ open, onClose }) {
   const { t } = useTranslation();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    onClose();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -103,9 +112,29 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div className="sidebar-footer">
-          <Link to="/login" className="sidebar-login-btn" onClick={onClose}>
-            {t('login.loginBtn')}
-          </Link>
+          {user ? (
+            <>
+              <Link to="/profile" className="sidebar-user" onClick={onClose}>
+                <div className="sidebar-user-avatar">
+                  {(user.user_metadata?.name || user.email || '?')
+                    .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
+                </div>
+                <div className="sidebar-user-info">
+                  <span className="sidebar-user-name">
+                    {user.user_metadata?.name || user.email}
+                  </span>
+                  <span className="sidebar-user-sub">{t('profile.viewProfile')}</span>
+                </div>
+              </Link>
+              <button className="sidebar-login-btn" onClick={handleSignOut}>
+                {t('login.logout')}
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="sidebar-login-btn" onClick={onClose}>
+              {t('login.loginBtn')}
+            </Link>
+          )}
           <LanguageSwitcher />
         </div>
       </aside>

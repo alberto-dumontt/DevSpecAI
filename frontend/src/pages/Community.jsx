@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 // ── Icons ──────────────────────────────────────────────────────
 function HeartIcon({ filled }) {
@@ -81,6 +83,9 @@ const INITIAL_POSTS = [
 // ── Component ──────────────────────────────────────────────────
 export default function Community() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [posts, setPosts] = useState(INITIAL_POSTS);
   const [openComments, setOpenComments] = useState(new Set());
@@ -88,7 +93,16 @@ export default function Community() {
   const [composerText, setComposerText] = useState('');
   const [composerTags, setComposerTags] = useState([]);
 
+  const requireAuth = () => {
+    if (!user) {
+      navigate('/login', { state: { from: location } });
+      return false;
+    }
+    return true;
+  };
+
   const togglePostLike = (postId) => {
+    if (!requireAuth()) return;
     setPosts(prev => prev.map(p =>
       p.id === postId
         ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 }
@@ -97,6 +111,7 @@ export default function Community() {
   };
 
   const toggleCommentLike = (postId, commentId) => {
+    if (!requireAuth()) return;
     setPosts(prev => prev.map(p =>
       p.id === postId
         ? { ...p, comments: p.comments.map(c =>
@@ -117,6 +132,7 @@ export default function Community() {
   };
 
   const addComment = (postId) => {
+    if (!requireAuth()) return;
     const text = (commentInputs[postId] || '').trim();
     if (!text) return;
     setPosts(prev => prev.map(p =>
@@ -128,6 +144,7 @@ export default function Community() {
   };
 
   const publishPost = () => {
+    if (!requireAuth()) return;
     if (!composerText.trim()) return;
     setPosts(prev => [{
       id: Date.now(),

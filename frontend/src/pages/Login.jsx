@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 
 function BrandIcon() {
   return (
@@ -34,11 +35,39 @@ function GoogleIcon() {
 
 export default function Login() {
   const { t } = useTranslation();
+  const { signIn, signInWithGitHub, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    const { error: err } = await signIn(email, password);
+    setLoading(false);
+    if (err) {
+      setError(err.message);
+    } else {
+      navigate(from, { replace: true });
+    }
+  };
+
+  const handleGitHub = async () => {
+    setError('');
+    const { error: err } = await signInWithGitHub();
+    if (err) setError(err.message);
+  };
+
+  const handleGoogle = async () => {
+    setError('');
+    const { error: err } = await signInWithGoogle();
+    if (err) setError(err.message);
   };
 
   return (
@@ -57,22 +86,9 @@ export default function Login() {
           <p className="login-subtitle">{t('login.subtitle')}</p>
         </div>
 
-        <div className="login-oauth">
-          <button className="oauth-btn" type="button">
-            <GitHubIcon />
-            {t('login.continueWith')} GitHub
-          </button>
-          <button className="oauth-btn" type="button">
-            <GoogleIcon />
-            {t('login.continueWith')} Google
-          </button>
-        </div>
-
-        <div className="login-divider">
-          <span>{t('login.or')}</span>
-        </div>
-
         <form className="login-form" onSubmit={handleSubmit}>
+          {error && <p className="login-error">{error}</p>}
+
           <div className="login-field">
             <label className="login-label">{t('login.email')}</label>
             <input
@@ -100,9 +116,9 @@ export default function Login() {
           <button
             type="submit"
             className="login-btn"
-            disabled={!email.trim() || !password.trim()}
+            disabled={loading || !email.trim() || !password.trim()}
           >
-            {t('login.submit')}
+            {loading ? t('login.loggingIn') : t('login.submit')}
           </button>
         </form>
 

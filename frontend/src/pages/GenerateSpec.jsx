@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { requestGenerateSpec } from '../services/api';
 
 export default function GenerateSpec() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const location = useLocation();
 
   const [technologies, setTechnologies] = useState('');
   const [goal, setGoal] = useState('');
@@ -111,13 +115,20 @@ export default function GenerateSpec() {
             </select>
           </div>
 
-          <button type="submit" className="btn-generate" disabled={loading}>
-            {loading ? (
-              <><span className="spinner" />{t('loading')}</>
-            ) : (
-              t('form.generate')
-            )}
-          </button>
+          {user ? (
+            <button type="submit" className="btn-generate" disabled={loading}>
+              {loading ? (
+                <><span className="spinner" />{t('loading')}</>
+              ) : (
+                t('form.generate')
+              )}
+            </button>
+          ) : (
+            <p className="spec-auth-notice">
+              {t('spec.loginRequired')}{' '}
+              <Link to="/login" state={{ from: location }}>{t('spec.loginLink')}</Link>
+            </p>
+          )}
         </form>
       </div>
 

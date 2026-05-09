@@ -701,6 +701,19 @@ select option {
   cursor: not-allowed;
 }
 
+.spec-auth-notice {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin: 0;
+}
+
+.spec-auth-notice a {
+  color: #1a1a1a;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* Spinner */
 .spinner {
   display: inline-block;
@@ -2180,6 +2193,16 @@ select option {
   gap: 1rem;
 }
 
+.login-error {
+  font-size: 0.85rem;
+  color: #e53e3e;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin: 0;
+}
+
 .login-field {
   display: flex;
   flex-direction: column;
@@ -2337,6 +2360,424 @@ select option {
 
 .login-back:hover {
   color: var(--text-2);
+}
+
+/* ── Register multi-step ────────────────────────────────────── */
+.register-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.register-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+}
+
+.register-step.active {
+  opacity: 1;
+}
+
+.register-step-number {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--text-1);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.register-step:not(.active) .register-step-number {
+  background: var(--border);
+  color: var(--text-3);
+}
+
+.register-step-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.register-step.active .register-step-label {
+  color: var(--text-1);
+}
+
+.register-step-divider {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.register-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.register-textarea {
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.register-input-prefix {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-2);
+  transition: border-color 0.15s;
+}
+
+.register-input-prefix:focus-within {
+  border-color: var(--text-2);
+}
+
+.register-input-prefix span {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  padding: 0 0.5rem 0 0.75rem;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.register-input-prefix .login-input {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding-left: 0;
+  flex: 1;
+  width: 0;
+}
+
+.register-input-prefix .login-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.register-required {
+  color: #e53e3e;
+  margin-left: 2px;
+  font-size: 0.8rem;
+}
+
+/* ── Profile page ───────────────────────────────────────────── */
+.profile-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-header {
+  margin-bottom: 0.25rem;
+}
+
+.profile-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+.profile-success {
+  font-size: 0.82rem;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  margin: 0;
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Identity row */
+.profile-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.profile-avatar-lg {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.profile-identity-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.profile-job {
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.profile-sep {
+  font-size: 0.78rem;
+  color: var(--text-3);
+}
+
+.profile-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+}
+
+.profile-location {
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+
+.profile-edit-btn {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.profile-edit-btn:hover {
+  color: var(--white);
+  border-color: var(--border-md);
+}
+
+/* Sections */
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.profile-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-bio {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.profile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.profile-link {
+  font-size: 0.8rem;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.profile-link:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.profile-empty {
+  font-size: 0.82rem;
+  color: var(--text-3);
+  margin: 0;
+  padding-top: 0.5rem;
+}
+
+/* Edit form */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.profile-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding-top: 0.25rem;
+}
+
+.profile-cancel-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.profile-cancel-btn:hover {
+  color: var(--white);
+  border-color: var(--border-md);
+}
+
+.profile-save-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.profile-save-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.profile-save-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Sidebar user widget */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 7px;
+  text-decoration: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+  overflow: hidden;
+}
+
+.sidebar-user:hover {
+  border-color: var(--border-md);
+}
+
+.sidebar-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  border: 1px solid var(--border-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.05rem;
+}
+
+.sidebar-user-name {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-sub {
+  font-size: 0.62rem;
+  color: var(--text-3);
+}
+
+@media (max-width: 640px) {
+  .profile-page {
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  .profile-identity {
+    flex-wrap: wrap;
+  }
+
+  .profile-edit-btn {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* ── Jobs ───────────────────────────────────────────────────── */
