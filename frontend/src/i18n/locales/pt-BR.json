@@ -233,6 +233,11 @@
       "paid": "Paid"
     }
   },
+  "common": {
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirmDelete": "Tem certeza que deseja excluir?"
+  },
   "roadmaps": {
     "index": {
       "title": "Roadmaps",

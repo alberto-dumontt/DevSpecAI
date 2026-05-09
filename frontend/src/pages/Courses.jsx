@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import ConfirmModal from '../components/ConfirmModal';
 
 const FILTER_KEYS = ['all', 'frontend', 'backend', 'devops', 'ai', 'career', 'free', 'paid'];
 const TAG_KEYS = FILTER_KEYS.filter(k => k !== 'all');
@@ -46,6 +47,12 @@ export default function Courses() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(EMPTY_FORM);
+  const [updating, setUpdating] = useState(false);
+
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const requireAuth = () => {
     if (!user) { navigate('/login', { state: { from: location } }); return false; }
@@ -225,18 +232,67 @@ export default function Courses() {
     setSubmitting(false);
     if (!data) return;
 
-    setCourses(prev => [{
-      ...data,
-      like_count: 0,
-      comment_count: 0,
-      liked: false,
-    }, ...prev]);
+    setCourses(prev => [{ ...data, like_count: 0, comment_count: 0, liked: false }, ...prev]);
     setForm(EMPTY_FORM);
     setComposerOpen(false);
   };
 
+  // ── Edit ──────────────────────────────────────────────────
+  const startEdit = (course) => {
+    setEditingId(course.id);
+    setEditForm({
+      name: course.name,
+      platform: course.platform ?? '',
+      description: course.description,
+      url: course.url ?? '',
+      tags: course.tags,
+    });
+  };
+
+  const cancelEdit = () => { setEditingId(null); setEditForm(EMPTY_FORM); };
+
+  const handleUpdate = async (e, id) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    const patch = {
+      name: editForm.name.trim(),
+      description: editForm.description.trim(),
+      platform: editForm.platform.trim() || null,
+      url: editForm.url.trim() || null,
+      tags: editForm.tags,
+    };
+
+    const { error } = await supabase.from('courses').update(patch).eq('id', id);
+
+    setUpdating(false);
+
+    if (error) {
+      console.error('Course update error:', error?.code, error?.message);
+      return;
+    }
+
+    setCourses(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
+    cancelEdit();
+  };
+
+  // ── Delete ────────────────────────────────────────────────
+  const handleDelete = (id) => setPendingDelete(id);
+
+  const confirmDelete = async () => {
+    await supabase.from('courses').delete().eq('id', pendingDelete);
+    setCourses(prev => prev.filter(c => c.id !== pendingDelete));
+    setPendingDelete(null);
+  };
+
   const toggleFormTag = (tag) =>
     setForm(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
+    }));
+
+  const toggleEditTag = (tag) =>
+    setEditForm(prev => ({
       ...prev,
       tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
     }));
@@ -246,6 +302,14 @@ export default function Courses() {
 
   return (
     <div className="rec-page">
+      {pendingDelete && (
+        <ConfirmModal
+          message={t('common.confirmDelete')}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+
       <div className="rec-header">
         <h1 className="rec-title">{t('courses.title')}</h1>
         <p className="rec-subtitle">{t('courses.subtitle')}</p>
@@ -367,56 +431,147 @@ export default function Courses() {
       <div className="rec-grid">
         {filtered.map(course => (
           <div key={course.id} className="rec-card">
-            <div className="rec-card-top">
-              <h3 className="rec-tool-name">
-                {course.url
-                  ? <a href={course.url} target="_blank" rel="noreferrer" className="rec-tool-link">{course.name} ↗</a>
-                  : course.name
-                }
-              </h3>
-              <button
-                className={`rec-like-btn${course.liked ? ' liked' : ''}`}
-                onClick={() => handleLike(course.id)}
-              >
-                <HeartIcon filled={course.liked} />
-                <span>{course.like_count}</span>
-              </button>
-            </div>
 
-            {course.platform && (
-              <span className="rec-course-platform">{course.platform}</span>
-            )}
+            {editingId === course.id ? (
+              /* ── Inline edit form ── */
+              <form className="rec-composer-form" onSubmit={e => handleUpdate(e, course.id)}>
+                <div className="rec-composer-row">
+                  <div className="login-field" style={{ flex: 2 }}>
+                    <label className="login-label">{t('courses.form.name')} *</label>
+                    <input
+                      type="text"
+                      className="rec-edit-input"
+                      value={editForm.name}
+                      onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="login-field" style={{ flex: 1 }}>
+                    <label className="login-label">{t('courses.form.platform')}</label>
+                    <input
+                      type="text"
+                      className="rec-edit-input"
+                      placeholder={t('courses.form.platformPlaceholder')}
+                      value={editForm.platform}
+                      onChange={e => setEditForm(p => ({ ...p, platform: e.target.value }))}
+                    />
+                  </div>
+                  <div className="login-field" style={{ flex: 1 }}>
+                    <label className="login-label">{t('courses.form.url')}</label>
+                    <input
+                      type="url"
+                      className="rec-edit-input"
+                      placeholder="https://..."
+                      value={editForm.url}
+                      onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="login-field">
+                  <label className="login-label">{t('courses.form.description')} *</label>
+                  <textarea
+                    className="rec-edit-input rec-edit-textarea"
+                    value={editForm.description}
+                    onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
+                    rows={4}
+                    required
+                  />
+                </div>
+                <div>
+                  <span className="login-label">{t('courses.form.tags')}</span>
+                  <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
+                    {TAG_KEYS.map(tag => (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`composer-tag-btn${editForm.tags.includes(tag) ? ' selected' : ''}`}
+                        onClick={() => toggleEditTag(tag)}
+                      >
+                        {t(`courses.tags.${tag}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="profile-form-actions">
+                  <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>
+                    {t('profile.cancel')}
+                  </button>
+                  <button
+                    type="submit"
+                    className="profile-save-btn"
+                    disabled={updating || !editForm.name.trim() || !editForm.description.trim()}
+                  >
+                    {updating ? t('profile.saving') : t('profile.save')}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* ── Normal card view ── */
+              <>
+                <div className="rec-card-top">
+                  <h3 className="rec-tool-name">
+                    {course.url
+                      ? <a href={course.url} target="_blank" rel="noreferrer" className="rec-tool-link">{course.name} ↗</a>
+                      : course.name
+                    }
+                  </h3>
+                  <button
+                    className={`rec-like-btn${course.liked ? ' liked' : ''}`}
+                    onClick={() => handleLike(course.id)}
+                  >
+                    <HeartIcon filled={course.liked} />
+                    <span>{course.like_count}</span>
+                  </button>
+                </div>
 
-            <p className="rec-tool-desc">{course.description}</p>
-
-            {course.tags.length > 0 && (
-              <div className="rec-tool-tags">
-                {course.tags.map(tag => (
-                  <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
-                ))}
-              </div>
-            )}
-
-            <div className="rec-card-footer">
-              <div className="rec-author-avatar">{initials(course.author?.name ?? '')}</div>
-              <div className="rec-author-info">
-                <Link to={`/u/${course.author_id}`} className="rec-author-name rec-author-link">
-                  {course.author?.name ?? '—'}
-                </Link>
-                {course.author?.job_title && (
-                  <span className="rec-author-role">{course.author.job_title}</span>
+                {course.platform && (
+                  <span className="rec-course-platform">{course.platform}</span>
                 )}
-              </div>
-              <button
-                className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`}
-                onClick={() => handleToggleComments(course.id)}
-              >
-                <CommentIcon />
-                <span>{course.comment_count}</span>
-              </button>
-            </div>
 
-            {openComments.has(course.id) && (
+                <p className="rec-tool-desc">{course.description}</p>
+
+                {course.tags.length > 0 && (
+                  <div className="rec-tool-tags">
+                    {course.tags.map(tag => (
+                      <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="rec-card-footer">
+                  <div className="rec-author-avatar">{initials(course.author?.name ?? '')}</div>
+                  <div className="rec-author-info">
+                    <Link to={`/u/${course.author_id}`} className="rec-author-name rec-author-link">
+                      {course.author?.name ?? '—'}
+                    </Link>
+                    {course.author?.job_title && (
+                      <span className="rec-author-role">{course.author.job_title}</span>
+                    )}
+                  </div>
+                  <button
+                    className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`}
+                    onClick={() => handleToggleComments(course.id)}
+                  >
+                    <CommentIcon />
+                    <span>{course.comment_count}</span>
+                  </button>
+                </div>
+
+                {user?.id === course.author_id && (
+                  <div className="rec-author-actions">
+                    <button className="rec-author-action-btn" onClick={() => startEdit(course)}>
+                      {t('common.edit')}
+                    </button>
+                    <span className="rec-author-action-sep">·</span>
+                    <button className="rec-author-action-btn rec-author-action-delete" onClick={() => handleDelete(course.id)}>
+                      {t('common.delete')}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {editingId !== course.id && openComments.has(course.id) && (
               <div className="comments-section">
                 {commentsLoading.has(course.id) ? (
                   <p className="comments-empty">...</p>

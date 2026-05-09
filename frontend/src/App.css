@@ -2134,6 +2134,141 @@ select option {
   font-weight: 400;
 }
 
+.rec-author-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.rec-author-action-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font);
+  font-size: 0.65rem;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.rec-author-action-btn:hover {
+  color: var(--text);
+}
+
+.rec-author-action-delete:hover {
+  color: var(--error);
+}
+
+.rec-author-action-sep {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+/* ── Edit form (inline card) ────────────────────────────────── */
+.rec-edit-input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-md);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.rec-edit-input:focus {
+  border-color: var(--border-lg);
+}
+
+.rec-edit-input::placeholder {
+  color: var(--text-3);
+}
+
+.rec-edit-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+/* ── Confirm modal ──────────────────────────────────────────── */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.25rem;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-modal {
+  background: var(--surface);
+  border: 1px solid var(--border-md);
+  border-radius: 10px;
+  padding: 2rem 1.75rem;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.confirm-message {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirm-cancel-btn {
+  background: none;
+  border: 1px solid var(--border-md);
+  border-radius: 5px;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.confirm-cancel-btn:hover {
+  border-color: var(--border-lg);
+  color: var(--text);
+}
+
+.confirm-delete-btn {
+  background: var(--error);
+  border: none;
+  border-radius: 5px;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  color: var(--white);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.confirm-delete-btn:hover {
+  opacity: 0.85;
+}
+
 @media (max-width: 768px) {
   .rec-page {
     padding: 2rem 1.25rem 3rem;
