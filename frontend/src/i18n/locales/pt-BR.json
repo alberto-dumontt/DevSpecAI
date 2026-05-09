@@ -74,10 +74,28 @@
     "title": "Comunidade",
     "subtitle": "Troque experiências, tire dúvidas e cresça junto com outros desenvolvedores.",
     "composerPlaceholder": "O que você quer compartilhar com a comunidade?",
+    "loginToPost": "Faça login para publicar.",
+    "loginToComment": "Faça login para comentar",
     "tagsLabel": "Tópico",
     "publish": "Publicar",
     "addComment": "Adicione um comentário...",
-    "noComments": "Seja o primeiro a comentar."
+    "noComments": "Seja o primeiro a comentar.",
+    "loading": "Carregando posts...",
+    "empty": "Nenhum post ainda. Seja o primeiro a compartilhar algo!",
+    "loadMore": "Carregar mais",
+    "justNow": "agora",
+    "timeMin": "há {{n}}min",
+    "timeHour": "há {{n}}h",
+    "timeDay": "há {{n}}d",
+    "tags": {
+      "techQuestion": "Dúvida Técnica",
+      "career": "Carreira",
+      "market": "Mercado",
+      "sharing": "Compartilhando",
+      "networking": "Networking",
+      "linkedin": "LinkedIn",
+      "discussion": "Discussão"
+    }
   },
   "login": {
     "loginBtn": "Login",

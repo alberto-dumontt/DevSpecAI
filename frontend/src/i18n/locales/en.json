@@ -74,10 +74,28 @@
     "title": "Community",
     "subtitle": "Share experiences, ask questions, and grow alongside other developers.",
     "composerPlaceholder": "What do you want to share with the community?",
+    "loginToPost": "Sign in to post.",
+    "loginToComment": "Sign in to comment",
     "tagsLabel": "Topic",
     "publish": "Publish",
     "addComment": "Add a comment...",
-    "noComments": "Be the first to comment."
+    "noComments": "Be the first to comment.",
+    "loading": "Loading posts...",
+    "empty": "No posts yet. Be the first to share something!",
+    "loadMore": "Load more",
+    "justNow": "just now",
+    "timeMin": "{{n}}m ago",
+    "timeHour": "{{n}}h ago",
+    "timeDay": "{{n}}d ago",
+    "tags": {
+      "techQuestion": "Tech Question",
+      "career": "Career",
+      "market": "Industry",
+      "sharing": "Sharing",
+      "networking": "Networking",
+      "linkedin": "LinkedIn",
+      "discussion": "Discussion"
+    }
   },
   "login": {
     "loginBtn": "Login",
