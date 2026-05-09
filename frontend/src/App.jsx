@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProfileSetup from './pages/ProfileSetup';
 import Profile from './pages/Profile';
+import PublicProfile from './pages/PublicProfile';
 import './App.css';
 
 const SETUP_EXCLUDED = ['/', '/login', '/register', '/profile/setup'];
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="u/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
             <Route path="spec" element={<GenerateSpec />} />
             <Route path="roadmaps" element={<RoadmapsIndex />} />
             <Route path="roadmaps/backend-beginner" element={<BackendBeginner />} />

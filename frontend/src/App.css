@@ -1643,6 +1643,16 @@ select option {
   color: var(--text);
 }
 
+.comment-author-link {
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.comment-author-link:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
 .comment-author-role {
   font-size: 0.63rem;
   color: var(--text-3);
@@ -2106,6 +2116,16 @@ select option {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--text);
+}
+
+.rec-author-link {
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.rec-author-link:hover {
+  color: var(--white);
+  text-decoration: underline;
 }
 
 .rec-author-role {

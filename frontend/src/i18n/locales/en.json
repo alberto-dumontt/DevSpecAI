@@ -151,6 +151,8 @@
     "saved": "Profile updated.",
     "links": "Links",
     "empty": "No information added yet.",
+    "emptyPublic": "This user hasn't filled their profile yet.",
+    "notFound": "Profile not found.",
     "viewProfile": "View profile"
   },
   "jobs": {

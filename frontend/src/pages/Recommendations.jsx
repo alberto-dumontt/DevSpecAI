@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -60,7 +60,7 @@ export default function Recommendations() {
       const { data } = await supabase
         .from('recommendations')
         .select(`
-          id, name, description, url, tags, created_at,
+          id, name, description, url, tags, created_at, author_id,
           author:profiles(name, job_title),
           recommendation_likes(count),
           recommendation_comments(count)
@@ -128,7 +128,7 @@ export default function Recommendations() {
     const { data } = await supabase
       .from('recommendation_comments')
       .select(`
-        id, content, created_at,
+        id, content, created_at, author_id,
         author:profiles(name, job_title),
         recommendation_comment_likes(count)
       `)
@@ -188,7 +188,7 @@ export default function Recommendations() {
     const { data } = await supabase
       .from('recommendation_comments')
       .insert({ recommendation_id: recId, author_id: user.id, content: text })
-      .select('id, content, created_at, author:profiles(name, job_title)')
+      .select('id, content, created_at, author_id, author:profiles(name, job_title)')
       .single();
 
     if (!data) return;
@@ -218,7 +218,7 @@ export default function Recommendations() {
         tags: form.tags,
         author_id: user.id,
       })
-      .select('id, name, description, url, tags, created_at, author:profiles(name, job_title)')
+      .select('id, name, description, url, tags, created_at, author_id, author:profiles(name, job_title)')
       .single();
 
     setSubmitting(false);
@@ -385,7 +385,9 @@ export default function Recommendations() {
             <div className="rec-card-footer">
               <div className="rec-author-avatar">{initials(rec.author?.name ?? '')}</div>
               <div className="rec-author-info">
-                <span className="rec-author-name">{rec.author?.name ?? '—'}</span>
+                <Link to={`/u/${rec.author_id}`} className="rec-author-name rec-author-link">
+                  {rec.author?.name ?? '—'}
+                </Link>
                 {rec.author?.job_title && (
                   <span className="rec-author-role">{rec.author.job_title}</span>
                 )}
@@ -413,7 +415,9 @@ export default function Recommendations() {
                         <div className="comment-avatar">{initials(comment.author?.name ?? '?')}</div>
                         <div className="comment-body">
                           <div className="comment-meta">
-                            <span className="comment-author-name">{comment.author?.name}</span>
+                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">
+                              {comment.author?.name}
+                            </Link>
                             {comment.author?.job_title && (
                               <span className="comment-author-role">{comment.author.job_title}</span>
                             )}
