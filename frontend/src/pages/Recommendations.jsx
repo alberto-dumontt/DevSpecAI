@@ -38,6 +38,7 @@ export default function Recommendations() {
   const [recs, setRecs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTag, setActiveTag] = useState('all');
+  const [showMine, setShowMine] = useState(false);
 
   const [openComments, setOpenComments] = useState(new Set());
   const [comments, setComments] = useState({});
@@ -292,7 +293,8 @@ export default function Recommendations() {
     }));
 
   const tagFiltered = activeTag === 'all' ? recs : recs.filter(r => r.tags.includes(activeTag));
-  const filtered = [...tagFiltered].sort((a, b) => {
+  const mineFiltered = showMine && user ? tagFiltered.filter(r => r.author_id === user.id) : tagFiltered;
+  const filtered = [...mineFiltered].sort((a, b) => {
     if (sortBy === 'liked') return b.like_count - a.like_count;
     if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
     return new Date(b.created_at) - new Date(a.created_at);
@@ -316,6 +318,17 @@ export default function Recommendations() {
       {/* ── Filters + Sort ── */}
       <div className="rec-controls">
         <div className="rec-filters">
+          {user && (
+            <>
+              <button
+                className={`rec-filter-btn${showMine ? ' active' : ''}`}
+                onClick={() => setShowMine(p => !p)}
+              >
+                {t('common.myPosts')}
+              </button>
+              <span className="rec-filter-sep" />
+            </>
+          )}
           {FILTER_KEYS.map(key => (
             <button
               key={key}

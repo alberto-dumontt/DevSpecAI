@@ -39,7 +39,7 @@ function CommentIcon() {
   );
 }
 
-function buildQuery(tag, sort, from, to) {
+function buildQuery(tag, sort, from, to, mineId = null) {
   let q = supabase
     .from('posts')
     .select(`
@@ -49,6 +49,7 @@ function buildQuery(tag, sort, from, to) {
       post_comments(count)
     `);
 
+  if (mineId) q = q.eq('author_id', mineId);
   if (tag !== 'all') q = q.contains('tags', [tag]);
 
   const ascending = sort === 'oldest';
@@ -86,6 +87,7 @@ export default function Community() {
 
   const [activeTag, setActiveTag] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
+  const [showMine, setShowMine] = useState(false);
 
   const [composerText, setComposerText] = useState('');
   const [composerTags, setComposerTags] = useState([]);
@@ -113,7 +115,8 @@ export default function Community() {
     let cancelled = false;
     const fetch = async () => {
       setLoading(true);
-      const { data } = await buildQuery(activeTag, sortBy, 0, PAGE_SIZE - 1);
+      const mineId = showMine && user ? user.id : null;
+      const { data } = await buildQuery(activeTag, sortBy, 0, PAGE_SIZE - 1, mineId);
       if (cancelled) return;
       const mapped = await mapWithLikes(data, user?.id);
       setPosts(mapped);
@@ -123,14 +126,15 @@ export default function Community() {
     };
     fetch();
     return () => { cancelled = true; };
-  }, [user, activeTag, sortBy]);
+  }, [user, activeTag, sortBy, showMine]);
 
   // ── Load more ─────────────────────────────────────────────
   const loadMore = async () => {
     if (loadingMore) return;
     setLoadingMore(true);
     const nextPage = page + 1;
-    const { data } = await buildQuery(activeTag, sortBy, nextPage * PAGE_SIZE, (nextPage + 1) * PAGE_SIZE - 1);
+    const mineId = showMine && user ? user.id : null;
+    const { data } = await buildQuery(activeTag, sortBy, nextPage * PAGE_SIZE, (nextPage + 1) * PAGE_SIZE - 1, mineId);
     const mapped = await mapWithLikes(data, user?.id);
     setPosts(prev => [...prev, ...mapped]);
     setPage(nextPage);
@@ -306,6 +310,17 @@ export default function Community() {
       {/* ── Filters + Sort ── */}
       <div className="rec-controls">
         <div className="rec-filters">
+          {user && (
+            <>
+              <button
+                className={`rec-filter-btn${showMine ? ' active' : ''}`}
+                onClick={() => setShowMine(p => !p)}
+              >
+                {t('common.myPosts')}
+              </button>
+              <span className="rec-filter-sep" />
+            </>
+          )}
           <button
             className={`rec-filter-btn${activeTag === 'all' ? ' active' : ''}`}
             onClick={() => setActiveTag('all')}

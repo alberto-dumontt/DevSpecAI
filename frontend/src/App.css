@@ -1986,6 +1986,15 @@ select option {
   gap: 0.5rem;
 }
 
+.rec-filter-sep {
+  display: inline-block;
+  width: 1px;
+  height: 16px;
+  background: var(--border-md);
+  align-self: center;
+  flex-shrink: 0;
+}
+
 .rec-sort-select {
   flex-shrink: 0;
   appearance: none;
