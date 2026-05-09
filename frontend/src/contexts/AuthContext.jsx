@@ -24,7 +24,14 @@ export function AuthProvider({ children }) {
     supabase.auth.signInWithPassword({ email, password });
 
   const signUp = (email, password, metadata = {}) =>
-    supabase.auth.signUp({ email, password, options: { data: metadata } });
+    supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+        emailRedirectTo: import.meta.env.VITE_SITE_URL ?? window.location.origin,
+      },
+    });
 
   const signInWithGitHub = () =>
     supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: window.location.origin } });
