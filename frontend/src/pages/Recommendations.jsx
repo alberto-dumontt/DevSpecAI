@@ -7,6 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 const FILTER_KEYS = ['all', 'frontend', 'backend', 'career', 'ai', 'productivity', 'study', 'free', 'paid'];
 const TAG_KEYS = FILTER_KEYS.filter(k => k !== 'all');
+const PAGE_SIZE = 10;
 
 const initials = (str) =>
   str ? str.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
@@ -29,6 +30,44 @@ function CommentIcon() {
 
 const EMPTY_FORM = { name: '', description: '', url: '', tags: [] };
 
+async function fetchPage({ tag, sort, showMine, userId, pg }) {
+  let q = supabase
+    .from('recommendations')
+    .select(`
+      id, name, description, url, tags, created_at, author_id,
+      author:profiles(name, job_title),
+      recommendation_likes(count),
+      recommendation_comments(count)
+    `);
+
+  if (showMine && userId) q = q.eq('author_id', userId);
+  if (tag !== 'all') q = q.contains('tags', [tag]);
+
+  const ascending = sort === 'oldest';
+  q = q.order('created_at', { ascending }).range(pg * PAGE_SIZE, (pg + 1) * PAGE_SIZE - 1);
+
+  const { data } = await q;
+
+  let likedSet = new Set();
+  if (userId && data?.length) {
+    const { data: likes } = await supabase
+      .from('recommendation_likes')
+      .select('recommendation_id')
+      .eq('user_id', userId);
+    likedSet = new Set(likes?.map(l => l.recommendation_id));
+  }
+
+  return {
+    items: (data ?? []).map(r => ({
+      ...r,
+      like_count: Number(r.recommendation_likes?.[0]?.count ?? 0),
+      comment_count: Number(r.recommendation_comments?.[0]?.count ?? 0),
+      liked: likedSet.has(r.id),
+    })),
+    hasMore: (data ?? []).length === PAGE_SIZE,
+  };
+}
+
 export default function Recommendations() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -37,7 +76,12 @@ export default function Recommendations() {
 
   const [recs, setRecs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+
   const [activeTag, setActiveTag] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
   const [showMine, setShowMine] = useState(false);
 
   const [openComments, setOpenComments] = useState(new Set());
@@ -48,8 +92,6 @@ export default function Recommendations() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const [sortBy, setSortBy] = useState('recent');
 
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
@@ -62,79 +104,60 @@ export default function Recommendations() {
     return true;
   };
 
-  // ── Initial fetch ──────────────────────────────────────────
+  // ── Initial fetch / filter change ─────────────────────────
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       setLoading(true);
-
-      const { data } = await supabase
-        .from('recommendations')
-        .select(`
-          id, name, description, url, tags, created_at, author_id,
-          author:profiles(name, job_title),
-          recommendation_likes(count),
-          recommendation_comments(count)
-        `)
-        .order('created_at', { ascending: false });
-
-      let likedSet = new Set();
-      if (user && data?.length) {
-        const { data: likes } = await supabase
-          .from('recommendation_likes')
-          .select('recommendation_id')
-          .eq('user_id', user.id);
-        likedSet = new Set(likes?.map(l => l.recommendation_id));
-      }
-
-      setRecs(
-        (data ?? []).map(r => ({
-          ...r,
-          like_count: Number(r.recommendation_likes?.[0]?.count ?? 0),
-          comment_count: Number(r.recommendation_comments?.[0]?.count ?? 0),
-          liked: likedSet.has(r.id),
-        }))
-      );
+      const { items, hasMore: more } = await fetchPage({ tag: activeTag, sort: sortBy, showMine, userId: user?.id, pg: 0 });
+      if (cancelled) return;
+      setRecs(items);
+      setPage(0);
+      setHasMore(more);
       setLoading(false);
     };
-
     load();
-  }, [user]);
+    return () => { cancelled = true; };
+  }, [user, activeTag, sortBy, showMine]);
+
+  // ── Load more ─────────────────────────────────────────────
+  const loadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    const { items, hasMore: more } = await fetchPage({ tag: activeTag, sort: sortBy, showMine, userId: user?.id, pg: nextPage });
+    setRecs(prev => [...prev, ...items]);
+    setPage(nextPage);
+    setHasMore(more);
+    setLoadingMore(false);
+  };
 
   // ── Like ──────────────────────────────────────────────────
   const handleLike = async (id) => {
     if (!requireAuth()) return;
-
     const rec = recs.find(r => r.id === id);
     const nowLiked = !rec.liked;
-
     setRecs(prev => prev.map(r =>
-      r.id === id
-        ? { ...r, liked: nowLiked, like_count: r.like_count + (nowLiked ? 1 : -1) }
-        : r
+      r.id === id ? { ...r, liked: nowLiked, like_count: r.like_count + (nowLiked ? 1 : -1) } : r
     ));
-
     if (nowLiked) {
       await supabase.from('recommendation_likes').insert({ recommendation_id: id, user_id: user.id });
     } else {
-      await supabase.from('recommendation_likes').delete()
-        .eq('recommendation_id', id).eq('user_id', user.id);
+      await supabase.from('recommendation_likes').delete().eq('recommendation_id', id).eq('user_id', user.id);
     }
   };
 
   // ── Comments ──────────────────────────────────────────────
   const handleToggleComments = async (id) => {
     const isOpen = openComments.has(id);
-
     setOpenComments(prev => {
       const next = new Set(prev);
       isOpen ? next.delete(id) : next.add(id);
       return next;
     });
-
     if (isOpen || comments[id]) return;
 
     setCommentsLoading(prev => new Set(prev).add(id));
-
     const { data } = await supabase
       .from('recommendation_comments')
       .select(`
@@ -163,30 +186,23 @@ export default function Recommendations() {
         liked: likedSet.has(c.id),
       })),
     }));
-
     setCommentsLoading(prev => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const handleCommentLike = async (recId, commentId) => {
     if (!requireAuth()) return;
-
     const comment = comments[recId]?.find(c => c.id === commentId);
     const nowLiked = !comment.liked;
-
     setComments(prev => ({
       ...prev,
       [recId]: prev[recId].map(c =>
-        c.id === commentId
-          ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) }
-          : c
+        c.id === commentId ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) } : c
       ),
     }));
-
     if (nowLiked) {
       await supabase.from('recommendation_comment_likes').insert({ comment_id: commentId, user_id: user.id });
     } else {
-      await supabase.from('recommendation_comment_likes').delete()
-        .eq('comment_id', commentId).eq('user_id', user.id);
+      await supabase.from('recommendation_comment_likes').delete().eq('comment_id', commentId).eq('user_id', user.id);
     }
   };
 
@@ -202,18 +218,15 @@ export default function Recommendations() {
       .single();
 
     if (!data) return;
-
     setComments(prev => ({
       ...prev,
       [recId]: [...(prev[recId] ?? []), { ...data, like_count: 0, liked: false }],
     }));
-    setRecs(prev => prev.map(r =>
-      r.id === recId ? { ...r, comment_count: r.comment_count + 1 } : r
-    ));
+    setRecs(prev => prev.map(r => r.id === recId ? { ...r, comment_count: r.comment_count + 1 } : r));
     setCommentInputs(prev => ({ ...prev, [recId]: '' }));
   };
 
-  // ── Submit new recommendation ──────────────────────────────
+  // ── Submit new ────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!requireAuth()) return;
@@ -221,13 +234,7 @@ export default function Recommendations() {
 
     const { data } = await supabase
       .from('recommendations')
-      .insert({
-        name: form.name.trim(),
-        description: form.description.trim(),
-        url: form.url.trim() || null,
-        tags: form.tags,
-        author_id: user.id,
-      })
+      .insert({ name: form.name.trim(), description: form.description.trim(), url: form.url.trim() || null, tags: form.tags, author_id: user.id })
       .select('id, name, description, url, tags, created_at, author_id, author:profiles(name, job_title)')
       .single();
 
@@ -244,36 +251,21 @@ export default function Recommendations() {
     setEditingId(rec.id);
     setEditForm({ name: rec.name, description: rec.description, url: rec.url ?? '', tags: rec.tags });
   };
-
   const cancelEdit = () => { setEditingId(null); setEditForm(EMPTY_FORM); };
 
   const handleUpdate = async (e, id) => {
     e.preventDefault();
     setUpdating(true);
-
-    const patch = {
-      name: editForm.name.trim(),
-      description: editForm.description.trim(),
-      url: editForm.url.trim() || null,
-      tags: editForm.tags,
-    };
-
+    const patch = { name: editForm.name.trim(), description: editForm.description.trim(), url: editForm.url.trim() || null, tags: editForm.tags };
     const { error } = await supabase.from('recommendations').update(patch).eq('id', id);
-
     setUpdating(false);
-
-    if (error) {
-      console.error('Recommendation update error:', error?.code, error?.message);
-      return;
-    }
-
+    if (error) { console.error('Recommendation update error:', error?.code, error?.message); return; }
     setRecs(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r));
     cancelEdit();
   };
 
   // ── Delete ────────────────────────────────────────────────
   const handleDelete = (id) => setPendingDelete(id);
-
   const confirmDelete = async () => {
     await supabase.from('recommendations').delete().eq('id', pendingDelete);
     setRecs(prev => prev.filter(r => r.id !== pendingDelete));
@@ -281,24 +273,12 @@ export default function Recommendations() {
   };
 
   const toggleFormTag = (tag) =>
-    setForm(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
-    }));
+    setForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
 
   const toggleEditTag = (tag) =>
-    setEditForm(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
-    }));
+    setEditForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
 
-  const tagFiltered = activeTag === 'all' ? recs : recs.filter(r => r.tags.includes(activeTag));
-  const mineFiltered = showMine && user ? tagFiltered.filter(r => r.author_id === user.id) : tagFiltered;
-  const filtered = [...mineFiltered].sort((a, b) => {
-    if (sortBy === 'liked') return b.like_count - a.like_count;
-    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  const displayed = sortBy === 'liked' ? [...recs].sort((a, b) => b.like_count - a.like_count) : recs;
   const userInitials = initials(user?.user_metadata?.name ?? user?.email ?? '');
 
   return (
@@ -310,6 +290,7 @@ export default function Recommendations() {
           onCancel={() => setPendingDelete(null)}
         />
       )}
+
       <div className="rec-header">
         <h1 className="rec-title">{t('recommendations.title')}</h1>
         <p className="rec-subtitle">{t('recommendations.subtitle')}</p>
@@ -358,72 +339,31 @@ export default function Recommendations() {
               <div className="rec-composer-row">
                 <div className="login-field" style={{ flex: 2 }}>
                   <label className="login-label">{t('recommendations.form.name')} *</label>
-                  <input
-                    type="text"
-                    className="login-input"
-                    placeholder={t('recommendations.form.namePlaceholder')}
-                    value={form.name}
-                    onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                    required
-                  />
+                  <input type="text" className="login-input" placeholder={t('recommendations.form.namePlaceholder')} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
                 </div>
                 <div className="login-field" style={{ flex: 1 }}>
                   <label className="login-label">{t('recommendations.form.url')}</label>
-                  <input
-                    type="url"
-                    className="login-input"
-                    placeholder="https://..."
-                    value={form.url}
-                    onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
-                  />
+                  <input type="url" className="login-input" placeholder="https://..." value={form.url} onChange={e => setForm(p => ({ ...p, url: e.target.value }))} />
                 </div>
               </div>
-
               <div className="login-field">
                 <label className="login-label">{t('recommendations.form.description')} *</label>
-                <textarea
-                  className="login-input register-textarea"
-                  placeholder={t('recommendations.form.descriptionPlaceholder')}
-                  value={form.description}
-                  onChange={e => setForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
-                  rows={3}
-                  maxLength={600}
-                  required
-                />
-                <p className={`rec-char-count${form.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
-                  {form.description.length}/600
-                </p>
+                <textarea className="login-input register-textarea" placeholder={t('recommendations.form.descriptionPlaceholder')} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))} rows={3} maxLength={600} required />
+                <p className={`rec-char-count${form.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>{form.description.length}/600</p>
               </div>
-
               <div>
                 <span className="login-label">{t('recommendations.form.tags')}</span>
                 <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
                   {TAG_KEYS.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`composer-tag-btn${form.tags.includes(tag) ? ' selected' : ''}`}
-                      onClick={() => toggleFormTag(tag)}
-                    >
+                    <button key={tag} type="button" className={`composer-tag-btn${form.tags.includes(tag) ? ' selected' : ''}`} onClick={() => toggleFormTag(tag)}>
                       {t(`recommendations.tags.${tag}`)}
                     </button>
                   ))}
                 </div>
               </div>
-
               <div className="profile-form-actions">
-                <button
-                  type="button"
-                  className="profile-cancel-btn"
-                  onClick={() => { setComposerOpen(false); setForm(EMPTY_FORM); }}
-                >
-                  {t('profile.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="profile-save-btn"
-                  disabled={submitting || !form.name.trim() || !form.description.trim()}
-                >
+                <button type="button" className="profile-cancel-btn" onClick={() => { setComposerOpen(false); setForm(EMPTY_FORM); }}>{t('profile.cancel')}</button>
+                <button type="submit" className="profile-save-btn" disabled={submitting || !form.name.trim() || !form.description.trim()}>
                   {submitting ? t('recommendations.form.submitting') : t('recommendations.form.submit')}
                 </button>
               </div>
@@ -434,97 +374,53 @@ export default function Recommendations() {
 
       {/* ── States ── */}
       {loading && <p className="rec-state-text">{t('recommendations.loading')}</p>}
-
-      {!loading && filtered.length === 0 && (
-        <p className="rec-state-text">{t('recommendations.empty')}</p>
-      )}
+      {!loading && displayed.length === 0 && <p className="rec-state-text">{t('recommendations.empty')}</p>}
 
       {/* ── Grid ── */}
       <div className="rec-grid">
-        {filtered.map(rec => (
+        {displayed.map(rec => (
           <div key={rec.id} className="rec-card">
-
             {editingId === rec.id ? (
-              /* ── Inline edit form ── */
               <form className="rec-composer-form" onSubmit={e => handleUpdate(e, rec.id)}>
                 <div className="rec-composer-row">
                   <div className="login-field" style={{ flex: 2 }}>
                     <label className="login-label">{t('recommendations.form.name')} *</label>
-                    <input
-                      type="text"
-                      className="rec-edit-input"
-                      value={editForm.name}
-                      onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
-                      required
-                    />
+                    <input type="text" className="rec-edit-input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} required />
                   </div>
                   <div className="login-field" style={{ flex: 1 }}>
                     <label className="login-label">{t('recommendations.form.url')}</label>
-                    <input
-                      type="url"
-                      className="rec-edit-input"
-                      placeholder="https://..."
-                      value={editForm.url}
-                      onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))}
-                    />
+                    <input type="url" className="rec-edit-input" placeholder="https://..." value={editForm.url} onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))} />
                   </div>
                 </div>
                 <div className="login-field">
                   <label className="login-label">{t('recommendations.form.description')} *</label>
-                  <textarea
-                    className="rec-edit-input rec-edit-textarea"
-                    value={editForm.description}
-                    onChange={e => setEditForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
-                    rows={4}
-                    maxLength={600}
-                    required
-                  />
-                  <p className={`rec-char-count${editForm.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
-                    {editForm.description.length}/600
-                  </p>
+                  <textarea className="rec-edit-input rec-edit-textarea" value={editForm.description} onChange={e => setEditForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))} rows={4} maxLength={600} required />
+                  <p className={`rec-char-count${editForm.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>{editForm.description.length}/600</p>
                 </div>
                 <div>
                   <span className="login-label">{t('recommendations.form.tags')}</span>
                   <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
                     {TAG_KEYS.map(tag => (
-                      <button
-                        key={tag}
-                        type="button"
-                        className={`composer-tag-btn${editForm.tags.includes(tag) ? ' selected' : ''}`}
-                        onClick={() => toggleEditTag(tag)}
-                      >
+                      <button key={tag} type="button" className={`composer-tag-btn${editForm.tags.includes(tag) ? ' selected' : ''}`} onClick={() => toggleEditTag(tag)}>
                         {t(`recommendations.tags.${tag}`)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="profile-form-actions">
-                  <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>
-                    {t('profile.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    className="profile-save-btn"
-                    disabled={updating || !editForm.name.trim() || !editForm.description.trim()}
-                  >
+                  <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>{t('profile.cancel')}</button>
+                  <button type="submit" className="profile-save-btn" disabled={updating || !editForm.name.trim() || !editForm.description.trim()}>
                     {updating ? t('profile.saving') : t('profile.save')}
                   </button>
                 </div>
               </form>
             ) : (
-              /* ── Normal card view ── */
               <>
                 <div className="rec-card-top">
                   <h3 className="rec-tool-name">
-                    {rec.url
-                      ? <a href={rec.url} target="_blank" rel="noreferrer" className="rec-tool-link">{rec.name} ↗</a>
-                      : rec.name
-                    }
+                    {rec.url ? <a href={rec.url} target="_blank" rel="noreferrer" className="rec-tool-link">{rec.name} ↗</a> : rec.name}
                   </h3>
-                  <button
-                    className={`rec-like-btn${rec.liked ? ' liked' : ''}`}
-                    onClick={() => handleLike(rec.id)}
-                  >
+                  <button className={`rec-like-btn${rec.liked ? ' liked' : ''}`} onClick={() => handleLike(rec.id)}>
                     <HeartIcon filled={rec.liked} />
                     <span>{rec.like_count}</span>
                   </button>
@@ -534,26 +430,17 @@ export default function Recommendations() {
 
                 {rec.tags.length > 0 && (
                   <div className="rec-tool-tags">
-                    {rec.tags.map(tag => (
-                      <span key={tag} className="rec-tool-tag">{t(`recommendations.tags.${tag}`)}</span>
-                    ))}
+                    {rec.tags.map(tag => <span key={tag} className="rec-tool-tag">{t(`recommendations.tags.${tag}`)}</span>)}
                   </div>
                 )}
 
                 <div className="rec-card-footer">
                   <div className="rec-author-avatar">{initials(rec.author?.name ?? '')}</div>
                   <div className="rec-author-info">
-                    <Link to={`/u/${rec.author_id}`} className="rec-author-name rec-author-link">
-                      {rec.author?.name ?? '—'}
-                    </Link>
-                    {rec.author?.job_title && (
-                      <span className="rec-author-role">{rec.author.job_title}</span>
-                    )}
+                    <Link to={`/u/${rec.author_id}`} className="rec-author-name rec-author-link">{rec.author?.name ?? '—'}</Link>
+                    {rec.author?.job_title && <span className="rec-author-role">{rec.author.job_title}</span>}
                   </div>
-                  <button
-                    className={`post-action-btn rec-comment-toggle${openComments.has(rec.id) ? ' active' : ''}`}
-                    onClick={() => handleToggleComments(rec.id)}
-                  >
+                  <button className={`post-action-btn rec-comment-toggle${openComments.has(rec.id) ? ' active' : ''}`} onClick={() => handleToggleComments(rec.id)}>
                     <CommentIcon />
                     <span>{rec.comment_count}</span>
                   </button>
@@ -561,13 +448,9 @@ export default function Recommendations() {
 
                 {user?.id === rec.author_id && (
                   <div className="rec-author-actions">
-                    <button className="rec-author-action-btn" onClick={() => startEdit(rec)}>
-                      {t('common.edit')}
-                    </button>
+                    <button className="rec-author-action-btn" onClick={() => startEdit(rec)}>{t('common.edit')}</button>
                     <span className="rec-author-action-sep">·</span>
-                    <button className="rec-author-action-btn rec-author-action-delete" onClick={() => handleDelete(rec.id)}>
-                      {t('common.delete')}
-                    </button>
+                    <button className="rec-author-action-btn rec-author-action-delete" onClick={() => handleDelete(rec.id)}>{t('common.delete')}</button>
                   </div>
                 )}
               </>
@@ -575,30 +458,19 @@ export default function Recommendations() {
 
             {!editingId && openComments.has(rec.id) && (
               <div className="comments-section">
-                {commentsLoading.has(rec.id) ? (
-                  <p className="comments-empty">...</p>
-                ) : (
+                {commentsLoading.has(rec.id) ? <p className="comments-empty">...</p> : (
                   <>
-                    {(comments[rec.id] ?? []).length === 0 && (
-                      <p className="comments-empty">{t('community.noComments')}</p>
-                    )}
+                    {(comments[rec.id] ?? []).length === 0 && <p className="comments-empty">{t('community.noComments')}</p>}
                     {(comments[rec.id] ?? []).map(comment => (
                       <div key={comment.id} className="comment">
                         <div className="comment-avatar">{initials(comment.author?.name ?? '?')}</div>
                         <div className="comment-body">
                           <div className="comment-meta">
-                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">
-                              {comment.author?.name}
-                            </Link>
-                            {comment.author?.job_title && (
-                              <span className="comment-author-role">{comment.author.job_title}</span>
-                            )}
+                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">{comment.author?.name}</Link>
+                            {comment.author?.job_title && <span className="comment-author-role">{comment.author.job_title}</span>}
                           </div>
                           <p className="comment-content">{comment.content}</p>
-                          <button
-                            className={`comment-like-btn${comment.liked ? ' liked' : ''}`}
-                            onClick={() => handleCommentLike(rec.id, comment.id)}
-                          >
+                          <button className={`comment-like-btn${comment.liked ? ' liked' : ''}`} onClick={() => handleCommentLike(rec.id, comment.id)}>
                             <HeartIcon filled={comment.liked} />
                             <span>{comment.like_count}</span>
                           </button>
@@ -607,31 +479,22 @@ export default function Recommendations() {
                     ))}
                   </>
                 )}
-
                 <div className="comment-input-row">
                   <div className="comment-avatar">{userInitials}</div>
-                  <input
-                    type="text"
-                    className="comment-input"
-                    placeholder={user ? t('community.addComment') : t('recommendations.loginToComment')}
-                    value={commentInputs[rec.id] || ''}
-                    onChange={e => setCommentInputs(prev => ({ ...prev, [rec.id]: e.target.value }))}
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddComment(rec.id); }}
-                    disabled={!user}
-                  />
-                  <button
-                    className="btn-comment-send"
-                    onClick={() => handleAddComment(rec.id)}
-                    disabled={!user || !(commentInputs[rec.id] || '').trim()}
-                  >
-                    →
-                  </button>
+                  <input type="text" className="comment-input" placeholder={user ? t('community.addComment') : t('recommendations.loginToComment')} value={commentInputs[rec.id] || ''} onChange={e => setCommentInputs(prev => ({ ...prev, [rec.id]: e.target.value }))} onKeyDown={e => { if (e.key === 'Enter') handleAddComment(rec.id); }} disabled={!user} />
+                  <button className="btn-comment-send" onClick={() => handleAddComment(rec.id)} disabled={!user || !(commentInputs[rec.id] || '').trim()}>→</button>
                 </div>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {hasMore && (
+        <button className="btn-load-more" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? '...' : t('community.loadMore')}
+        </button>
+      )}
     </div>
   );
 }

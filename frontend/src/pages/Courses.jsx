@@ -7,6 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 
 const FILTER_KEYS = ['all', 'frontend', 'backend', 'devops', 'ai', 'career', 'free', 'paid'];
 const TAG_KEYS = FILTER_KEYS.filter(k => k !== 'all');
+const PAGE_SIZE = 10;
 
 const initials = (str) =>
   str ? str.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
@@ -29,6 +30,44 @@ function CommentIcon() {
 
 const EMPTY_FORM = { name: '', platform: '', description: '', url: '', tags: [] };
 
+async function fetchPage({ tag, sort, showMine, userId, pg }) {
+  let q = supabase
+    .from('courses')
+    .select(`
+      id, name, description, platform, url, tags, created_at, author_id,
+      author:profiles(name, job_title),
+      course_likes(count),
+      course_comments(count)
+    `);
+
+  if (showMine && userId) q = q.eq('author_id', userId);
+  if (tag !== 'all') q = q.contains('tags', [tag]);
+
+  const ascending = sort === 'oldest';
+  q = q.order('created_at', { ascending }).range(pg * PAGE_SIZE, (pg + 1) * PAGE_SIZE - 1);
+
+  const { data } = await q;
+
+  let likedSet = new Set();
+  if (userId && data?.length) {
+    const { data: likes } = await supabase
+      .from('course_likes')
+      .select('course_id')
+      .eq('user_id', userId);
+    likedSet = new Set(likes?.map(l => l.course_id));
+  }
+
+  return {
+    items: (data ?? []).map(c => ({
+      ...c,
+      like_count: Number(c.course_likes?.[0]?.count ?? 0),
+      comment_count: Number(c.course_comments?.[0]?.count ?? 0),
+      liked: likedSet.has(c.id),
+    })),
+    hasMore: (data ?? []).length === PAGE_SIZE,
+  };
+}
+
 export default function Courses() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -37,7 +76,12 @@ export default function Courses() {
 
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+
   const [activeTag, setActiveTag] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
   const [showMine, setShowMine] = useState(false);
 
   const [openComments, setOpenComments] = useState(new Set());
@@ -48,8 +92,6 @@ export default function Courses() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-
-  const [sortBy, setSortBy] = useState('recent');
 
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
@@ -62,79 +104,60 @@ export default function Courses() {
     return true;
   };
 
-  // ── Initial fetch ──────────────────────────────────────────
+  // ── Initial fetch / filter change ─────────────────────────
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       setLoading(true);
-
-      const { data } = await supabase
-        .from('courses')
-        .select(`
-          id, name, description, platform, url, tags, created_at, author_id,
-          author:profiles(name, job_title),
-          course_likes(count),
-          course_comments(count)
-        `)
-        .order('created_at', { ascending: false });
-
-      let likedSet = new Set();
-      if (user && data?.length) {
-        const { data: likes } = await supabase
-          .from('course_likes')
-          .select('course_id')
-          .eq('user_id', user.id);
-        likedSet = new Set(likes?.map(l => l.course_id));
-      }
-
-      setCourses(
-        (data ?? []).map(c => ({
-          ...c,
-          like_count: Number(c.course_likes?.[0]?.count ?? 0),
-          comment_count: Number(c.course_comments?.[0]?.count ?? 0),
-          liked: likedSet.has(c.id),
-        }))
-      );
+      const { items, hasMore: more } = await fetchPage({ tag: activeTag, sort: sortBy, showMine, userId: user?.id, pg: 0 });
+      if (cancelled) return;
+      setCourses(items);
+      setPage(0);
+      setHasMore(more);
       setLoading(false);
     };
-
     load();
-  }, [user]);
+    return () => { cancelled = true; };
+  }, [user, activeTag, sortBy, showMine]);
+
+  // ── Load more ─────────────────────────────────────────────
+  const loadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    const { items, hasMore: more } = await fetchPage({ tag: activeTag, sort: sortBy, showMine, userId: user?.id, pg: nextPage });
+    setCourses(prev => [...prev, ...items]);
+    setPage(nextPage);
+    setHasMore(more);
+    setLoadingMore(false);
+  };
 
   // ── Like ──────────────────────────────────────────────────
   const handleLike = async (id) => {
     if (!requireAuth()) return;
-
     const course = courses.find(c => c.id === id);
     const nowLiked = !course.liked;
-
     setCourses(prev => prev.map(c =>
-      c.id === id
-        ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) }
-        : c
+      c.id === id ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) } : c
     ));
-
     if (nowLiked) {
       await supabase.from('course_likes').insert({ course_id: id, user_id: user.id });
     } else {
-      await supabase.from('course_likes').delete()
-        .eq('course_id', id).eq('user_id', user.id);
+      await supabase.from('course_likes').delete().eq('course_id', id).eq('user_id', user.id);
     }
   };
 
   // ── Comments ──────────────────────────────────────────────
   const handleToggleComments = async (id) => {
     const isOpen = openComments.has(id);
-
     setOpenComments(prev => {
       const next = new Set(prev);
       isOpen ? next.delete(id) : next.add(id);
       return next;
     });
-
     if (isOpen || comments[id]) return;
 
     setCommentsLoading(prev => new Set(prev).add(id));
-
     const { data } = await supabase
       .from('course_comments')
       .select(`
@@ -163,30 +186,23 @@ export default function Courses() {
         liked: likedSet.has(c.id),
       })),
     }));
-
     setCommentsLoading(prev => { const next = new Set(prev); next.delete(id); return next; });
   };
 
   const handleCommentLike = async (courseId, commentId) => {
     if (!requireAuth()) return;
-
     const comment = comments[courseId]?.find(c => c.id === commentId);
     const nowLiked = !comment.liked;
-
     setComments(prev => ({
       ...prev,
       [courseId]: prev[courseId].map(c =>
-        c.id === commentId
-          ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) }
-          : c
+        c.id === commentId ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) } : c
       ),
     }));
-
     if (nowLiked) {
       await supabase.from('course_comment_likes').insert({ comment_id: commentId, user_id: user.id });
     } else {
-      await supabase.from('course_comment_likes').delete()
-        .eq('comment_id', commentId).eq('user_id', user.id);
+      await supabase.from('course_comment_likes').delete().eq('comment_id', commentId).eq('user_id', user.id);
     }
   };
 
@@ -202,18 +218,15 @@ export default function Courses() {
       .single();
 
     if (!data) return;
-
     setComments(prev => ({
       ...prev,
       [courseId]: [...(prev[courseId] ?? []), { ...data, like_count: 0, liked: false }],
     }));
-    setCourses(prev => prev.map(c =>
-      c.id === courseId ? { ...c, comment_count: c.comment_count + 1 } : c
-    ));
+    setCourses(prev => prev.map(c => c.id === courseId ? { ...c, comment_count: c.comment_count + 1 } : c));
     setCommentInputs(prev => ({ ...prev, [courseId]: '' }));
   };
 
-  // ── Submit new course ──────────────────────────────────────
+  // ── Submit new ────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!requireAuth()) return;
@@ -221,14 +234,7 @@ export default function Courses() {
 
     const { data } = await supabase
       .from('courses')
-      .insert({
-        name: form.name.trim(),
-        description: form.description.trim(),
-        platform: form.platform.trim() || null,
-        url: form.url.trim() || null,
-        tags: form.tags,
-        author_id: user.id,
-      })
+      .insert({ name: form.name.trim(), description: form.description.trim(), platform: form.platform.trim() || null, url: form.url.trim() || null, tags: form.tags, author_id: user.id })
       .select('id, name, description, platform, url, tags, created_at, author_id, author:profiles(name, job_title)')
       .single();
 
@@ -243,45 +249,23 @@ export default function Courses() {
   // ── Edit ──────────────────────────────────────────────────
   const startEdit = (course) => {
     setEditingId(course.id);
-    setEditForm({
-      name: course.name,
-      platform: course.platform ?? '',
-      description: course.description,
-      url: course.url ?? '',
-      tags: course.tags,
-    });
+    setEditForm({ name: course.name, platform: course.platform ?? '', description: course.description, url: course.url ?? '', tags: course.tags });
   };
-
   const cancelEdit = () => { setEditingId(null); setEditForm(EMPTY_FORM); };
 
   const handleUpdate = async (e, id) => {
     e.preventDefault();
     setUpdating(true);
-
-    const patch = {
-      name: editForm.name.trim(),
-      description: editForm.description.trim(),
-      platform: editForm.platform.trim() || null,
-      url: editForm.url.trim() || null,
-      tags: editForm.tags,
-    };
-
+    const patch = { name: editForm.name.trim(), description: editForm.description.trim(), platform: editForm.platform.trim() || null, url: editForm.url.trim() || null, tags: editForm.tags };
     const { error } = await supabase.from('courses').update(patch).eq('id', id);
-
     setUpdating(false);
-
-    if (error) {
-      console.error('Course update error:', error?.code, error?.message);
-      return;
-    }
-
+    if (error) { console.error('Course update error:', error?.code, error?.message); return; }
     setCourses(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
     cancelEdit();
   };
 
   // ── Delete ────────────────────────────────────────────────
   const handleDelete = (id) => setPendingDelete(id);
-
   const confirmDelete = async () => {
     await supabase.from('courses').delete().eq('id', pendingDelete);
     setCourses(prev => prev.filter(c => c.id !== pendingDelete));
@@ -289,24 +273,12 @@ export default function Courses() {
   };
 
   const toggleFormTag = (tag) =>
-    setForm(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
-    }));
+    setForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
 
   const toggleEditTag = (tag) =>
-    setEditForm(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
-    }));
+    setEditForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
 
-  const tagFiltered = activeTag === 'all' ? courses : courses.filter(c => c.tags.includes(activeTag));
-  const mineFiltered = showMine && user ? tagFiltered.filter(c => c.author_id === user.id) : tagFiltered;
-  const filtered = [...mineFiltered].sort((a, b) => {
-    if (sortBy === 'liked') return b.like_count - a.like_count;
-    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  const displayed = sortBy === 'liked' ? [...courses].sort((a, b) => b.like_count - a.like_count) : courses;
   const userInitials = initials(user?.user_metadata?.name ?? user?.email ?? '');
 
   return (
@@ -367,82 +339,35 @@ export default function Courses() {
               <div className="rec-composer-row">
                 <div className="login-field" style={{ flex: 2 }}>
                   <label className="login-label">{t('courses.form.name')} *</label>
-                  <input
-                    type="text"
-                    className="login-input"
-                    placeholder={t('courses.form.namePlaceholder')}
-                    value={form.name}
-                    onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                    required
-                  />
+                  <input type="text" className="login-input" placeholder={t('courses.form.namePlaceholder')} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
                 </div>
                 <div className="login-field" style={{ flex: 1 }}>
                   <label className="login-label">{t('courses.form.platform')}</label>
-                  <input
-                    type="text"
-                    className="login-input"
-                    placeholder={t('courses.form.platformPlaceholder')}
-                    value={form.platform}
-                    onChange={e => setForm(p => ({ ...p, platform: e.target.value }))}
-                  />
+                  <input type="text" className="login-input" placeholder={t('courses.form.platformPlaceholder')} value={form.platform} onChange={e => setForm(p => ({ ...p, platform: e.target.value }))} />
                 </div>
                 <div className="login-field" style={{ flex: 1 }}>
                   <label className="login-label">{t('courses.form.url')}</label>
-                  <input
-                    type="url"
-                    className="login-input"
-                    placeholder="https://..."
-                    value={form.url}
-                    onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
-                  />
+                  <input type="url" className="login-input" placeholder="https://..." value={form.url} onChange={e => setForm(p => ({ ...p, url: e.target.value }))} />
                 </div>
               </div>
-
               <div className="login-field">
                 <label className="login-label">{t('courses.form.description')} *</label>
-                <textarea
-                  className="login-input register-textarea"
-                  placeholder={t('courses.form.descriptionPlaceholder')}
-                  value={form.description}
-                  onChange={e => setForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
-                  rows={3}
-                  maxLength={600}
-                  required
-                />
-                <p className={`rec-char-count${form.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
-                  {form.description.length}/600
-                </p>
+                <textarea className="login-input register-textarea" placeholder={t('courses.form.descriptionPlaceholder')} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))} rows={3} maxLength={600} required />
+                <p className={`rec-char-count${form.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>{form.description.length}/600</p>
               </div>
-
               <div>
                 <span className="login-label">{t('courses.form.tags')}</span>
                 <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
                   {TAG_KEYS.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`composer-tag-btn${form.tags.includes(tag) ? ' selected' : ''}`}
-                      onClick={() => toggleFormTag(tag)}
-                    >
+                    <button key={tag} type="button" className={`composer-tag-btn${form.tags.includes(tag) ? ' selected' : ''}`} onClick={() => toggleFormTag(tag)}>
                       {t(`courses.tags.${tag}`)}
                     </button>
                   ))}
                 </div>
               </div>
-
               <div className="profile-form-actions">
-                <button
-                  type="button"
-                  className="profile-cancel-btn"
-                  onClick={() => { setComposerOpen(false); setForm(EMPTY_FORM); }}
-                >
-                  {t('profile.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="profile-save-btn"
-                  disabled={submitting || !form.name.trim() || !form.description.trim()}
-                >
+                <button type="button" className="profile-cancel-btn" onClick={() => { setComposerOpen(false); setForm(EMPTY_FORM); }}>{t('profile.cancel')}</button>
+                <button type="submit" className="profile-save-btn" disabled={submitting || !form.name.trim() || !form.description.trim()}>
                   {submitting ? t('courses.form.submitting') : t('courses.form.submit')}
                 </button>
               </div>
@@ -453,140 +378,79 @@ export default function Courses() {
 
       {/* ── States ── */}
       {loading && <p className="rec-state-text">{t('courses.loading')}</p>}
-
-      {!loading && filtered.length === 0 && (
-        <p className="rec-state-text">{t('courses.empty')}</p>
-      )}
+      {!loading && displayed.length === 0 && <p className="rec-state-text">{t('courses.empty')}</p>}
 
       {/* ── Grid ── */}
       <div className="rec-grid">
-        {filtered.map(course => (
+        {displayed.map(course => (
           <div key={course.id} className="rec-card">
-
             {editingId === course.id ? (
-              /* ── Inline edit form ── */
               <form className="rec-composer-form" onSubmit={e => handleUpdate(e, course.id)}>
                 <div className="rec-composer-row">
                   <div className="login-field" style={{ flex: 2 }}>
                     <label className="login-label">{t('courses.form.name')} *</label>
-                    <input
-                      type="text"
-                      className="rec-edit-input"
-                      value={editForm.name}
-                      onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
-                      required
-                    />
+                    <input type="text" className="rec-edit-input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} required />
                   </div>
                   <div className="login-field" style={{ flex: 1 }}>
                     <label className="login-label">{t('courses.form.platform')}</label>
-                    <input
-                      type="text"
-                      className="rec-edit-input"
-                      placeholder={t('courses.form.platformPlaceholder')}
-                      value={editForm.platform}
-                      onChange={e => setEditForm(p => ({ ...p, platform: e.target.value }))}
-                    />
+                    <input type="text" className="rec-edit-input" placeholder={t('courses.form.platformPlaceholder')} value={editForm.platform} onChange={e => setEditForm(p => ({ ...p, platform: e.target.value }))} />
                   </div>
                   <div className="login-field" style={{ flex: 1 }}>
                     <label className="login-label">{t('courses.form.url')}</label>
-                    <input
-                      type="url"
-                      className="rec-edit-input"
-                      placeholder="https://..."
-                      value={editForm.url}
-                      onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))}
-                    />
+                    <input type="url" className="rec-edit-input" placeholder="https://..." value={editForm.url} onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))} />
                   </div>
                 </div>
                 <div className="login-field">
                   <label className="login-label">{t('courses.form.description')} *</label>
-                  <textarea
-                    className="rec-edit-input rec-edit-textarea"
-                    value={editForm.description}
-                    onChange={e => setEditForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))}
-                    rows={4}
-                    maxLength={600}
-                    required
-                  />
-                  <p className={`rec-char-count${editForm.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>
-                    {editForm.description.length}/600
-                  </p>
+                  <textarea className="rec-edit-input rec-edit-textarea" value={editForm.description} onChange={e => setEditForm(p => ({ ...p, description: e.target.value.slice(0, 600) }))} rows={4} maxLength={600} required />
+                  <p className={`rec-char-count${editForm.description.length >= 540 ? ' rec-char-count--warn' : ''}`}>{editForm.description.length}/600</p>
                 </div>
                 <div>
                   <span className="login-label">{t('courses.form.tags')}</span>
                   <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
                     {TAG_KEYS.map(tag => (
-                      <button
-                        key={tag}
-                        type="button"
-                        className={`composer-tag-btn${editForm.tags.includes(tag) ? ' selected' : ''}`}
-                        onClick={() => toggleEditTag(tag)}
-                      >
+                      <button key={tag} type="button" className={`composer-tag-btn${editForm.tags.includes(tag) ? ' selected' : ''}`} onClick={() => toggleEditTag(tag)}>
                         {t(`courses.tags.${tag}`)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="profile-form-actions">
-                  <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>
-                    {t('profile.cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    className="profile-save-btn"
-                    disabled={updating || !editForm.name.trim() || !editForm.description.trim()}
-                  >
+                  <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>{t('profile.cancel')}</button>
+                  <button type="submit" className="profile-save-btn" disabled={updating || !editForm.name.trim() || !editForm.description.trim()}>
                     {updating ? t('profile.saving') : t('profile.save')}
                   </button>
                 </div>
               </form>
             ) : (
-              /* ── Normal card view ── */
               <>
                 <div className="rec-card-top">
                   <h3 className="rec-tool-name">
-                    {course.url
-                      ? <a href={course.url} target="_blank" rel="noreferrer" className="rec-tool-link">{course.name} ↗</a>
-                      : course.name
-                    }
+                    {course.url ? <a href={course.url} target="_blank" rel="noreferrer" className="rec-tool-link">{course.name} ↗</a> : course.name}
                   </h3>
-                  <button
-                    className={`rec-like-btn${course.liked ? ' liked' : ''}`}
-                    onClick={() => handleLike(course.id)}
-                  >
+                  <button className={`rec-like-btn${course.liked ? ' liked' : ''}`} onClick={() => handleLike(course.id)}>
                     <HeartIcon filled={course.liked} />
                     <span>{course.like_count}</span>
                   </button>
                 </div>
 
-                {course.platform && (
-                  <span className="rec-course-platform">{course.platform}</span>
-                )}
+                {course.platform && <span className="rec-course-platform">{course.platform}</span>}
 
                 <p className="rec-tool-desc">{course.description}</p>
 
                 {course.tags.length > 0 && (
                   <div className="rec-tool-tags">
-                    {course.tags.map(tag => (
-                      <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
-                    ))}
+                    {course.tags.map(tag => <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>)}
                   </div>
                 )}
 
                 <div className="rec-card-footer">
                   <div className="rec-author-avatar">{initials(course.author?.name ?? '')}</div>
                   <div className="rec-author-info">
-                    <Link to={`/u/${course.author_id}`} className="rec-author-name rec-author-link">
-                      {course.author?.name ?? '—'}
-                    </Link>
-                    {course.author?.job_title && (
-                      <span className="rec-author-role">{course.author.job_title}</span>
-                    )}
+                    <Link to={`/u/${course.author_id}`} className="rec-author-name rec-author-link">{course.author?.name ?? '—'}</Link>
+                    {course.author?.job_title && <span className="rec-author-role">{course.author.job_title}</span>}
                   </div>
-                  <button
-                    className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`}
-                    onClick={() => handleToggleComments(course.id)}
-                  >
+                  <button className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`} onClick={() => handleToggleComments(course.id)}>
                     <CommentIcon />
                     <span>{course.comment_count}</span>
                   </button>
@@ -594,13 +458,9 @@ export default function Courses() {
 
                 {user?.id === course.author_id && (
                   <div className="rec-author-actions">
-                    <button className="rec-author-action-btn" onClick={() => startEdit(course)}>
-                      {t('common.edit')}
-                    </button>
+                    <button className="rec-author-action-btn" onClick={() => startEdit(course)}>{t('common.edit')}</button>
                     <span className="rec-author-action-sep">·</span>
-                    <button className="rec-author-action-btn rec-author-action-delete" onClick={() => handleDelete(course.id)}>
-                      {t('common.delete')}
-                    </button>
+                    <button className="rec-author-action-btn rec-author-action-delete" onClick={() => handleDelete(course.id)}>{t('common.delete')}</button>
                   </div>
                 )}
               </>
@@ -608,30 +468,19 @@ export default function Courses() {
 
             {editingId !== course.id && openComments.has(course.id) && (
               <div className="comments-section">
-                {commentsLoading.has(course.id) ? (
-                  <p className="comments-empty">...</p>
-                ) : (
+                {commentsLoading.has(course.id) ? <p className="comments-empty">...</p> : (
                   <>
-                    {(comments[course.id] ?? []).length === 0 && (
-                      <p className="comments-empty">{t('community.noComments')}</p>
-                    )}
+                    {(comments[course.id] ?? []).length === 0 && <p className="comments-empty">{t('community.noComments')}</p>}
                     {(comments[course.id] ?? []).map(comment => (
                       <div key={comment.id} className="comment">
                         <div className="comment-avatar">{initials(comment.author?.name ?? '?')}</div>
                         <div className="comment-body">
                           <div className="comment-meta">
-                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">
-                              {comment.author?.name}
-                            </Link>
-                            {comment.author?.job_title && (
-                              <span className="comment-author-role">{comment.author.job_title}</span>
-                            )}
+                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">{comment.author?.name}</Link>
+                            {comment.author?.job_title && <span className="comment-author-role">{comment.author.job_title}</span>}
                           </div>
                           <p className="comment-content">{comment.content}</p>
-                          <button
-                            className={`comment-like-btn${comment.liked ? ' liked' : ''}`}
-                            onClick={() => handleCommentLike(course.id, comment.id)}
-                          >
+                          <button className={`comment-like-btn${comment.liked ? ' liked' : ''}`} onClick={() => handleCommentLike(course.id, comment.id)}>
                             <HeartIcon filled={comment.liked} />
                             <span>{comment.like_count}</span>
                           </button>
@@ -640,31 +489,22 @@ export default function Courses() {
                     ))}
                   </>
                 )}
-
                 <div className="comment-input-row">
                   <div className="comment-avatar">{userInitials}</div>
-                  <input
-                    type="text"
-                    className="comment-input"
-                    placeholder={user ? t('community.addComment') : t('courses.loginToComment')}
-                    value={commentInputs[course.id] || ''}
-                    onChange={e => setCommentInputs(prev => ({ ...prev, [course.id]: e.target.value }))}
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddComment(course.id); }}
-                    disabled={!user}
-                  />
-                  <button
-                    className="btn-comment-send"
-                    onClick={() => handleAddComment(course.id)}
-                    disabled={!user || !(commentInputs[course.id] || '').trim()}
-                  >
-                    →
-                  </button>
+                  <input type="text" className="comment-input" placeholder={user ? t('community.addComment') : t('courses.loginToComment')} value={commentInputs[course.id] || ''} onChange={e => setCommentInputs(prev => ({ ...prev, [course.id]: e.target.value }))} onKeyDown={e => { if (e.key === 'Enter') handleAddComment(course.id); }} disabled={!user} maxLength={500} />
+                  <button className="btn-comment-send" onClick={() => handleAddComment(course.id)} disabled={!user || !(commentInputs[course.id] || '').trim()}>→</button>
                 </div>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {hasMore && (
+        <button className="btn-load-more" onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? '...' : t('community.loadMore')}
+        </button>
+      )}
     </div>
   );
 }
