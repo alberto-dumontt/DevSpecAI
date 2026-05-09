@@ -1,5 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+
+const FILTER_KEYS = ['all', 'frontend', 'backend', 'devops', 'ai', 'career', 'free', 'paid'];
+const TAG_KEYS = FILTER_KEYS.filter(k => k !== 'all');
+
+const initials = (str) =>
+  str ? str.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
 
 function HeartIcon({ filled }) {
   return (
@@ -17,76 +26,223 @@ function CommentIcon() {
   );
 }
 
-const FILTER_KEYS = ['all', 'frontend', 'backend', 'devops', 'ai', 'career', 'free', 'paid'];
-
-const INITIAL_COURSES = [
-  {
-    id: 1,
-    name: 'CS50x — Introduction to Computer Science',
-    description: 'The best free computer science course available. Covers algorithms, data structures, C, Python, SQL, and web development. A solid foundation for any developer.',
-    platform: 'edX / Harvard',
-    author: { name: 'Alberto Dumontt', role: 'Backend Engineer', initials: 'AD' },
-    tags: ['backend', 'free'],
-    url: 'https://cs50.harvard.edu/x/',
-    likes: 24,
-    liked: false,
-    comments: [
-      { id: 1, author: { name: 'Lucas Andrade', initials: 'LA' }, content: 'Fiz esse curso no começo da carreira e mudou minha forma de pensar. As semanas de C são pesadas mas valem cada segundo.', likes: 6, liked: false },
-      { id: 2, author: { name: 'Ana Lima', initials: 'AL' }, content: 'O projeto final é desafiador mas muito gratificante. Recomendo muito para quem quer entender o que acontece "por baixo do capô".', likes: 3, liked: false },
-    ],
-  },
-];
+const EMPTY_FORM = { name: '', platform: '', description: '', url: '', tags: [] };
 
 export default function Courses() {
   const { t } = useTranslation();
-  const [courses, setCourses] = useState(INITIAL_COURSES);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTag, setActiveTag] = useState('all');
+
   const [openComments, setOpenComments] = useState(new Set());
+  const [comments, setComments] = useState({});
   const [commentInputs, setCommentInputs] = useState({});
+  const [commentsLoading, setCommentsLoading] = useState(new Set());
 
-  const toggleLike = (id) => {
-    setCourses(prev => prev.map(course =>
-      course.id === id
-        ? { ...course, liked: !course.liked, likes: course.liked ? course.likes - 1 : course.likes + 1 }
-        : course
-    ));
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+
+  const requireAuth = () => {
+    if (!user) { navigate('/login', { state: { from: location } }); return false; }
+    return true;
   };
 
-  const toggleCommentLike = (courseId, commentId) => {
-    setCourses(prev => prev.map(course =>
-      course.id === courseId
-        ? { ...course, comments: course.comments.map(c =>
-            c.id === commentId
-              ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 }
-              : c
-          )}
-        : course
+  // ── Initial fetch ──────────────────────────────────────────
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+
+      const { data } = await supabase
+        .from('courses')
+        .select(`
+          id, name, description, platform, url, tags, created_at, author_id,
+          author:profiles(name, job_title),
+          course_likes(count),
+          course_comments(count)
+        `)
+        .order('created_at', { ascending: false });
+
+      let likedSet = new Set();
+      if (user && data?.length) {
+        const { data: likes } = await supabase
+          .from('course_likes')
+          .select('course_id')
+          .eq('user_id', user.id);
+        likedSet = new Set(likes?.map(l => l.course_id));
+      }
+
+      setCourses(
+        (data ?? []).map(c => ({
+          ...c,
+          like_count: Number(c.course_likes?.[0]?.count ?? 0),
+          comment_count: Number(c.course_comments?.[0]?.count ?? 0),
+          liked: likedSet.has(c.id),
+        }))
+      );
+      setLoading(false);
+    };
+
+    load();
+  }, [user]);
+
+  // ── Like ──────────────────────────────────────────────────
+  const handleLike = async (id) => {
+    if (!requireAuth()) return;
+
+    const course = courses.find(c => c.id === id);
+    const nowLiked = !course.liked;
+
+    setCourses(prev => prev.map(c =>
+      c.id === id
+        ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) }
+        : c
     ));
+
+    if (nowLiked) {
+      await supabase.from('course_likes').insert({ course_id: id, user_id: user.id });
+    } else {
+      await supabase.from('course_likes').delete()
+        .eq('course_id', id).eq('user_id', user.id);
+    }
   };
 
-  const toggleComments = (id) => {
+  // ── Comments ──────────────────────────────────────────────
+  const handleToggleComments = async (id) => {
+    const isOpen = openComments.has(id);
+
     setOpenComments(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      isOpen ? next.delete(id) : next.add(id);
       return next;
     });
+
+    if (isOpen || comments[id]) return;
+
+    setCommentsLoading(prev => new Set(prev).add(id));
+
+    const { data } = await supabase
+      .from('course_comments')
+      .select(`
+        id, content, created_at, author_id,
+        author:profiles(name, job_title),
+        course_comment_likes(count)
+      `)
+      .eq('course_id', id)
+      .order('created_at');
+
+    let likedSet = new Set();
+    if (user && data?.length) {
+      const { data: clikes } = await supabase
+        .from('course_comment_likes')
+        .select('comment_id')
+        .eq('user_id', user.id)
+        .in('comment_id', data.map(c => c.id));
+      likedSet = new Set(clikes?.map(l => l.comment_id));
+    }
+
+    setComments(prev => ({
+      ...prev,
+      [id]: (data ?? []).map(c => ({
+        ...c,
+        like_count: Number(c.course_comment_likes?.[0]?.count ?? 0),
+        liked: likedSet.has(c.id),
+      })),
+    }));
+
+    setCommentsLoading(prev => { const next = new Set(prev); next.delete(id); return next; });
   };
 
-  const addComment = (courseId) => {
+  const handleCommentLike = async (courseId, commentId) => {
+    if (!requireAuth()) return;
+
+    const comment = comments[courseId]?.find(c => c.id === commentId);
+    const nowLiked = !comment.liked;
+
+    setComments(prev => ({
+      ...prev,
+      [courseId]: prev[courseId].map(c =>
+        c.id === commentId
+          ? { ...c, liked: nowLiked, like_count: c.like_count + (nowLiked ? 1 : -1) }
+          : c
+      ),
+    }));
+
+    if (nowLiked) {
+      await supabase.from('course_comment_likes').insert({ comment_id: commentId, user_id: user.id });
+    } else {
+      await supabase.from('course_comment_likes').delete()
+        .eq('comment_id', commentId).eq('user_id', user.id);
+    }
+  };
+
+  const handleAddComment = async (courseId) => {
+    if (!requireAuth()) return;
     const text = (commentInputs[courseId] || '').trim();
     if (!text) return;
-    setCourses(prev => prev.map(course =>
-      course.id === courseId
-        ? { ...course, comments: [...course.comments, { id: Date.now(), author: { name: 'You', initials: 'EU' }, content: text, likes: 0, liked: false }] }
-        : course
+
+    const { data } = await supabase
+      .from('course_comments')
+      .insert({ course_id: courseId, author_id: user.id, content: text })
+      .select('id, content, created_at, author_id, author:profiles(name, job_title)')
+      .single();
+
+    if (!data) return;
+
+    setComments(prev => ({
+      ...prev,
+      [courseId]: [...(prev[courseId] ?? []), { ...data, like_count: 0, liked: false }],
+    }));
+    setCourses(prev => prev.map(c =>
+      c.id === courseId ? { ...c, comment_count: c.comment_count + 1 } : c
     ));
     setCommentInputs(prev => ({ ...prev, [courseId]: '' }));
   };
 
-  const [activeTag, setActiveTag] = useState('all');
+  // ── Submit new course ──────────────────────────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!requireAuth()) return;
+    setSubmitting(true);
 
-  const filtered = activeTag === 'all'
-    ? courses
-    : courses.filter(course => course.tags.includes(activeTag));
+    const { data } = await supabase
+      .from('courses')
+      .insert({
+        name: form.name.trim(),
+        description: form.description.trim(),
+        platform: form.platform.trim() || null,
+        url: form.url.trim() || null,
+        tags: form.tags,
+        author_id: user.id,
+      })
+      .select('id, name, description, platform, url, tags, created_at, author_id, author:profiles(name, job_title)')
+      .single();
+
+    setSubmitting(false);
+    if (!data) return;
+
+    setCourses(prev => [{
+      ...data,
+      like_count: 0,
+      comment_count: 0,
+      liked: false,
+    }, ...prev]);
+    setForm(EMPTY_FORM);
+    setComposerOpen(false);
+  };
+
+  const toggleFormTag = (tag) =>
+    setForm(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
+    }));
+
+  const filtered = activeTag === 'all' ? courses : courses.filter(c => c.tags.includes(activeTag));
+  const userInitials = initials(user?.user_metadata?.name ?? user?.email ?? '');
 
   return (
     <div className="rec-page">
@@ -95,6 +251,7 @@ export default function Courses() {
         <p className="rec-subtitle">{t('courses.subtitle')}</p>
       </div>
 
+      {/* ── Filters ── */}
       <div className="rec-filters">
         {FILTER_KEYS.map(key => (
           <button
@@ -107,6 +264,106 @@ export default function Courses() {
         ))}
       </div>
 
+      {/* ── Composer ── */}
+      {user && (
+        <div className="composer-card">
+          {!composerOpen ? (
+            <button className="rec-composer-trigger" onClick={() => setComposerOpen(true)}>
+              + {t('courses.suggest')}
+            </button>
+          ) : (
+            <form className="rec-composer-form" onSubmit={handleSubmit}>
+              <div className="rec-composer-row">
+                <div className="login-field" style={{ flex: 2 }}>
+                  <label className="login-label">{t('courses.form.name')} *</label>
+                  <input
+                    type="text"
+                    className="login-input"
+                    placeholder={t('courses.form.namePlaceholder')}
+                    value={form.name}
+                    onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="login-field" style={{ flex: 1 }}>
+                  <label className="login-label">{t('courses.form.platform')}</label>
+                  <input
+                    type="text"
+                    className="login-input"
+                    placeholder={t('courses.form.platformPlaceholder')}
+                    value={form.platform}
+                    onChange={e => setForm(p => ({ ...p, platform: e.target.value }))}
+                  />
+                </div>
+                <div className="login-field" style={{ flex: 1 }}>
+                  <label className="login-label">{t('courses.form.url')}</label>
+                  <input
+                    type="url"
+                    className="login-input"
+                    placeholder="https://..."
+                    value={form.url}
+                    onChange={e => setForm(p => ({ ...p, url: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="login-field">
+                <label className="login-label">{t('courses.form.description')} *</label>
+                <textarea
+                  className="login-input register-textarea"
+                  placeholder={t('courses.form.descriptionPlaceholder')}
+                  value={form.description}
+                  onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div>
+                <span className="login-label">{t('courses.form.tags')}</span>
+                <div className="composer-tags" style={{ marginTop: '0.5rem' }}>
+                  {TAG_KEYS.map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`composer-tag-btn${form.tags.includes(tag) ? ' selected' : ''}`}
+                      onClick={() => toggleFormTag(tag)}
+                    >
+                      {t(`courses.tags.${tag}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="profile-form-actions">
+                <button
+                  type="button"
+                  className="profile-cancel-btn"
+                  onClick={() => { setComposerOpen(false); setForm(EMPTY_FORM); }}
+                >
+                  {t('profile.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="profile-save-btn"
+                  disabled={submitting || !form.name.trim() || !form.description.trim()}
+                >
+                  {submitting ? t('courses.form.submitting') : t('courses.form.submit')}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* ── States ── */}
+      {loading && <p className="rec-state-text">{t('courses.loading')}</p>}
+
+      {!loading && filtered.length === 0 && (
+        <p className="rec-state-text">{t('courses.empty')}</p>
+      )}
+
+      {/* ── Grid ── */}
       <div className="rec-grid">
         {filtered.map(course => (
           <div key={course.id} className="rec-card">
@@ -119,10 +376,10 @@ export default function Courses() {
               </h3>
               <button
                 className={`rec-like-btn${course.liked ? ' liked' : ''}`}
-                onClick={() => toggleLike(course.id)}
+                onClick={() => handleLike(course.id)}
               >
                 <HeartIcon filled={course.liked} />
-                <span>{course.likes}</span>
+                <span>{course.like_count}</span>
               </button>
             </div>
 
@@ -132,64 +389,83 @@ export default function Courses() {
 
             <p className="rec-tool-desc">{course.description}</p>
 
-            <div className="rec-tool-tags">
-              {course.tags.map(tag => (
-                <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
-              ))}
-            </div>
+            {course.tags.length > 0 && (
+              <div className="rec-tool-tags">
+                {course.tags.map(tag => (
+                  <span key={tag} className="rec-tool-tag">{t(`courses.tags.${tag}`)}</span>
+                ))}
+              </div>
+            )}
 
             <div className="rec-card-footer">
-              <div className="rec-author-avatar">{course.author.initials}</div>
+              <div className="rec-author-avatar">{initials(course.author?.name ?? '')}</div>
               <div className="rec-author-info">
-                <span className="rec-author-name">{course.author.name}</span>
-                <span className="rec-author-role">{course.author.role}</span>
+                <Link to={`/u/${course.author_id}`} className="rec-author-name rec-author-link">
+                  {course.author?.name ?? '—'}
+                </Link>
+                {course.author?.job_title && (
+                  <span className="rec-author-role">{course.author.job_title}</span>
+                )}
               </div>
               <button
                 className={`post-action-btn rec-comment-toggle${openComments.has(course.id) ? ' active' : ''}`}
-                onClick={() => toggleComments(course.id)}
+                onClick={() => handleToggleComments(course.id)}
               >
                 <CommentIcon />
-                <span>{course.comments.length}</span>
+                <span>{course.comment_count}</span>
               </button>
             </div>
 
             {openComments.has(course.id) && (
               <div className="comments-section">
-                {course.comments.length === 0 && (
-                  <p className="comments-empty">{t('community.noComments')}</p>
-                )}
-                {course.comments.map(comment => (
-                  <div key={comment.id} className="comment">
-                    <div className="comment-avatar">{comment.author.initials}</div>
-                    <div className="comment-body">
-                      <div className="comment-meta">
-                        <span className="comment-author-name">{comment.author.name}</span>
+                {commentsLoading.has(course.id) ? (
+                  <p className="comments-empty">...</p>
+                ) : (
+                  <>
+                    {(comments[course.id] ?? []).length === 0 && (
+                      <p className="comments-empty">{t('community.noComments')}</p>
+                    )}
+                    {(comments[course.id] ?? []).map(comment => (
+                      <div key={comment.id} className="comment">
+                        <div className="comment-avatar">{initials(comment.author?.name ?? '?')}</div>
+                        <div className="comment-body">
+                          <div className="comment-meta">
+                            <Link to={`/u/${comment.author_id}`} className="comment-author-name comment-author-link">
+                              {comment.author?.name}
+                            </Link>
+                            {comment.author?.job_title && (
+                              <span className="comment-author-role">{comment.author.job_title}</span>
+                            )}
+                          </div>
+                          <p className="comment-content">{comment.content}</p>
+                          <button
+                            className={`comment-like-btn${comment.liked ? ' liked' : ''}`}
+                            onClick={() => handleCommentLike(course.id, comment.id)}
+                          >
+                            <HeartIcon filled={comment.liked} />
+                            <span>{comment.like_count}</span>
+                          </button>
+                        </div>
                       </div>
-                      <p className="comment-content">{comment.content}</p>
-                      <button
-                        className={`comment-like-btn${comment.liked ? ' liked' : ''}`}
-                        onClick={() => toggleCommentLike(course.id, comment.id)}
-                      >
-                        <HeartIcon filled={comment.liked} />
-                        <span>{comment.likes}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    ))}
+                  </>
+                )}
+
                 <div className="comment-input-row">
-                  <div className="comment-avatar">EU</div>
+                  <div className="comment-avatar">{userInitials}</div>
                   <input
                     type="text"
                     className="comment-input"
-                    placeholder={t('community.addComment')}
+                    placeholder={user ? t('community.addComment') : t('courses.loginToComment')}
                     value={commentInputs[course.id] || ''}
                     onChange={e => setCommentInputs(prev => ({ ...prev, [course.id]: e.target.value }))}
-                    onKeyDown={e => { if (e.key === 'Enter') addComment(course.id); }}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddComment(course.id); }}
+                    disabled={!user}
                   />
                   <button
                     className="btn-comment-send"
-                    onClick={() => addComment(course.id)}
-                    disabled={!(commentInputs[course.id] || '').trim()}
+                    onClick={() => handleAddComment(course.id)}
+                    disabled={!user || !(commentInputs[course.id] || '').trim()}
                   >
                     →
                   </button>

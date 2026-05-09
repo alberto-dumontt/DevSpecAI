@@ -177,6 +177,22 @@
   "courses": {
     "title": "Courses",
     "subtitle": "Courses recommended by the community. Honest picks from developers who've actually taken them.",
+    "suggest": "Suggest a course",
+    "loading": "Loading courses...",
+    "empty": "No courses yet. Be the first to suggest one!",
+    "loginToComment": "Sign in to comment",
+    "form": {
+      "name": "Course name",
+      "namePlaceholder": "e.g. CS50x, The Odin Project...",
+      "platform": "Platform",
+      "platformPlaceholder": "e.g. Udemy, edX, YouTube...",
+      "description": "Why do you recommend it?",
+      "descriptionPlaceholder": "Share how it helped you and why it's worth taking...",
+      "url": "Link",
+      "tags": "Categories",
+      "submit": "Publish recommendation",
+      "submitting": "Publishing..."
+    },
     "tags": {
       "all": "All",
       "frontend": "Frontend",

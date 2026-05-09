@@ -177,6 +177,22 @@
   "courses": {
     "title": "Cursos",
     "subtitle": "Cursos recomendados pela comunidade. Indicações honestas de devs que realmente fizeram.",
+    "suggest": "Sugerir curso",
+    "loading": "Carregando cursos...",
+    "empty": "Nenhum curso ainda. Seja o primeiro a sugerir!",
+    "loginToComment": "Faça login para comentar",
+    "form": {
+      "name": "Nome do curso",
+      "namePlaceholder": "Ex: CS50x, The Odin Project...",
+      "platform": "Plataforma",
+      "platformPlaceholder": "Ex: Udemy, edX, YouTube...",
+      "description": "Por que você recomenda?",
+      "descriptionPlaceholder": "Conte como te ajudou e por que vale a pena...",
+      "url": "Link",
+      "tags": "Categorias",
+      "submit": "Publicar recomendação",
+      "submitting": "Publicando..."
+    },
     "tags": {
       "all": "Todos",
       "frontend": "Frontend",
