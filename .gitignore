@@ -3,19 +3,11 @@
 .env.local
 .env.*.local
 
-# Dependencies
-node_modules/
-
-# Frontend build
-frontend/dist/
-frontend/.vite/
-
 # Backend build
 backend/target/
 
 # Logs
 *.log
-npm-debug.log*
 
 # OS
 .DS_Store

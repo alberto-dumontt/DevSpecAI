@@ -1,7 +1,6 @@
-# dev for devs — 1:n · one to many
+# DevSpec.AI
 
-A free, open space for developers to grow together — no paywall, no empty promises.  
-One dev shares knowledge, many devs benefit.
+Generate personalized project specifications based on your tech stack, career goal, and experience level. Powered by Cohere AI.
 
 **Live:** [devspecai.onrender.com](https://devspecai.onrender.com)
 
@@ -9,55 +8,13 @@ One dev shares knowledge, many devs benefit.
 
 ---
 
-## What is this?
-
-**dev for devs** is a community platform built for developers at every stage of their career — whether you're writing your first line of code, switching paths, or leveling up. The platform brings together practical tools, curated study paths, community discussions, and developer recommendations in one place.
-
-This is not a product. It's a community being built.
-
----
-
-## Features
-
-### DevSpec.AI
-Generate personalized project specifications based on your tech stack, career goal, and experience level. Powered by Cohere AI.
-
-### Roadmaps
-Curated study paths recommended by developers from the community. Each roadmap includes step-by-step guidance, project ideas, and real-world context.
-
-- **Backend for Beginners** — recommended by Alberto Dumontt, Backend Engineer
-
-### Community
-A social feed where developers share experiences, ask technical questions, discuss the market, and connect with each other. Posts support likes, comments, and topic tags.
-
-### Recommendations
-A collaborative showcase of tools recommended by developers, for developers. Each card includes a description, tags, the dev who recommended it, and a comments section.
-
-### Courses
-Community-recommended courses with honest picks from developers who've actually taken them. Filterable by area and pricing. Includes comments so devs can share their experience.
-
-### DevRadar
-A bot-powered job board that automatically scans for developer job openings and posts them to the community. Listings include title, advertiser, publish date, description, and tags by role and level.
-
----
-
 ## Tech Stack
 
-**Frontend**
-
 | Technology | Purpose |
 |---|---|
-| React 19 + Vite 6 | UI framework and build tool |
-| React Router v6 | Client-side routing |
-| react-i18next | Internationalization (EN / PT-BR) |
-| JetBrains Mono | Typography |
-
-**Backend**
-
-| Technology | Purpose |
-|---|---|
-| Java 21 + Spring Boot | REST API |
+| Java 21 + Spring Boot 3.5 | REST API |
 | Cohere AI API | AI-powered spec generation |
+| Lombok | Boilerplate reduction |
 | Docker | Containerization |
 | Render | Deployment |
 
@@ -91,29 +48,22 @@ Generates a project specification based on user input.
 
 ## Running locally
 
-**Backend**
-
 ```bash
 cd backend
-mvn clean install -DskipTests
-mvn spring-boot:run
+./mvnw clean install -DskipTests
+./mvnw spring-boot:run
 ```
 
 Runs on `http://localhost:8080`
 
-**Frontend**
+Set the required environment variable before running:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+export COHERE_API_KEY=your_key_here
 ```
-
-Runs on `http://localhost:5173`
 
 ---
 
-## About
+## Built by
 
-Built by [Alberto Dumontt](https://www.albertodumontt.com/).  
-If you're a dev and want to contribute, you're welcome here.
+[Alberto Dumontt](https://www.albertodumontt.com/)
