@@ -1997,6 +1997,7 @@ select option {
 
 .rec-sort-select {
   flex-shrink: 0;
+  width: auto;
   appearance: none;
   background: var(--surface);
   border: 1px solid var(--border-md);
@@ -3069,6 +3070,73 @@ select option {
 }
 
 /* ── Jobs ───────────────────────────────────────────────────── */
+.jobs-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.jobs-title-row .rec-title {
+  margin-bottom: 0;
+}
+
+.beta-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  border: 1px solid var(--border-md);
+  border-radius: 3px;
+  padding: 2px 6px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.jobs-search-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.jobs-search-input {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border-md);
+  border-radius: 5px;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  width: auto;
+}
+
+.jobs-search-input:focus {
+  border-color: var(--border-lg);
+}
+
+.jobs-search-input::placeholder {
+  color: var(--text-3);
+}
+
+.jobs-status-msg {
+  font-size: 0.82rem;
+  color: var(--text-3);
+  font-weight: 300;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.jobs-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
 .devradar-info {
   display: flex;
   align-items: flex-start;
@@ -3177,6 +3245,29 @@ select option {
   color: var(--text-2);
   font-weight: 300;
   margin: 0;
+}
+
+.job-description--empty {
+  font-style: italic;
+  color: var(--text-3);
+}
+
+.job-expand-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 0.3rem;
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.job-expand-btn:hover {
+  color: var(--text-2);
 }
 
 .job-card-bottom {

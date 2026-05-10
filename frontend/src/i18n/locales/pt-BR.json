@@ -174,22 +174,41 @@
     "viewProfile": "Ver perfil"
   },
   "jobs": {
-    "navItem": "DevRadar.AI",
-    "title": "DevRadar.AI",
-    "subtitle": "Vagas para desenvolvedores, atualizadas automaticamente. Atualmente com foco em oportunidades no Brasil.",
-    "botLabel": "O que é o DevRadar.AI?",
-    "botDesc": "O DevRadar.AI é um robozinho que vasculha a internet em busca de vagas para devs e publica aqui automaticamente. Sem curadoria manual — só oportunidades encontradas e entregues de forma automática. Por enquanto, com foco no mercado brasileiro.",
-    "tags": {
-      "all": "Todas",
-      "remote": "Remoto",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "fullstack": "Fullstack",
-      "mobile": "Mobile",
-      "devops": "DevOps",
-      "junior": "Júnior",
-      "mid": "Pleno",
-      "senior": "Sênior"
+    "navItem": "DevRadar",
+    "title": "DevRadar",
+    "betaBadge": "beta",
+    "subtitle": "Vagas para desenvolvedores, coletadas automaticamente. Esta funcionalidade está em versão beta — as vagas são encontradas por robôs e podem conter imprecisões.",
+    "botLabel": "O que é o DevRadar?",
+    "botDesc": "O DevRadar é um robozinho que vasculha a internet em busca de vagas para devs e publica aqui automaticamente. A rotina roda 1 vez por dia, sempre trazendo as oportunidades mais recentes. Sem curadoria manual — só vagas encontradas e entregues de forma automática. Está em constante desenvolvimento, com foco no mercado brasileiro.",
+    "searchPlaceholder": "Buscar por título...",
+    "loading": "Carregando vagas...",
+    "empty": "Nenhuma vaga encontrada.",
+    "notInformed": "Não informado",
+    "publishedToday": "publicado hoje",
+    "publishedYesterday": "publicado ontem",
+    "publishedDaysAgo": "publicado há {{count}} dias",
+    "noDescription": "Descrição não informada.",
+    "showMore": "Ver mais",
+    "showLess": "Ver menos",
+    "workplaceType": {
+      "REMOTE": "Remoto",
+      "HYBRID": "Híbrido",
+      "ON_SITE": "Presencial"
+    },
+    "employmentType": {
+      "FULL_TIME": "Tempo integral",
+      "PART_TIME": "Meio período",
+      "CONTRACT": "Contrato / PJ",
+      "TEMPORARY": "Temporário",
+      "INTERNSHIP": "Estágio",
+      "FREELANCE": "Freelance"
+    },
+    "seniorityLevel": {
+      "ENTRY_LEVEL": "Júnior",
+      "MID_SENIOR": "Pleno / Sênior",
+      "ASSOCIATE": "Associado",
+      "DIRECTOR": "Diretor",
+      "EXECUTIVE": "Executivo"
     }
   },
   "courses": {

@@ -174,22 +174,41 @@
     "viewProfile": "View profile"
   },
   "jobs": {
-    "navItem": "DevRadar.AI",
-    "title": "DevRadar.AI",
-    "subtitle": "Job listings for developers, updated automatically. Currently covering opportunities in Brazil.",
-    "botLabel": "What is DevRadar.AI?",
-    "botDesc": "DevRadar.AI is a bot that continuously scans the web for developer job openings and posts them here. No manual curation — just opportunities found and delivered automatically. Currently focused on the Brazilian market.",
-    "tags": {
-      "all": "All",
-      "remote": "Remote",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "fullstack": "Fullstack",
-      "mobile": "Mobile",
-      "devops": "DevOps",
-      "junior": "Junior",
-      "mid": "Mid-level",
-      "senior": "Senior"
+    "navItem": "DevRadar",
+    "title": "DevRadar",
+    "betaBadge": "beta",
+    "subtitle": "Developer job listings, collected automatically. This feature is in beta — jobs are found by bots and may contain inaccuracies.",
+    "botLabel": "What is DevRadar?",
+    "botDesc": "DevRadar is a bot that scans the web for developer job openings and posts them here automatically. The routine runs once a day, always bringing the most recent opportunities. No manual curation — just jobs found and delivered automatically. It's under constant development, currently focused on the Brazilian market.",
+    "searchPlaceholder": "Search by title...",
+    "loading": "Loading jobs...",
+    "empty": "No jobs found.",
+    "notInformed": "Not informed",
+    "publishedToday": "published today",
+    "publishedYesterday": "published yesterday",
+    "publishedDaysAgo": "published {{count}} days ago",
+    "noDescription": "No description provided.",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "workplaceType": {
+      "REMOTE": "Remote",
+      "HYBRID": "Hybrid",
+      "ON_SITE": "On-site"
+    },
+    "employmentType": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "CONTRACT": "Contract",
+      "TEMPORARY": "Temporary",
+      "INTERNSHIP": "Internship",
+      "FREELANCE": "Freelance"
+    },
+    "seniorityLevel": {
+      "ENTRY_LEVEL": "Junior",
+      "MID_SENIOR": "Mid / Senior",
+      "ASSOCIATE": "Associate",
+      "DIRECTOR": "Director",
+      "EXECUTIVE": "Executive"
     }
   },
   "courses": {
