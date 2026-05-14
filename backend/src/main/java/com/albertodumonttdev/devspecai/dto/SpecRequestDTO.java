@@ -1,5 +1,6 @@
 package com.albertodumonttdev.devspecai.dto;
 
+import com.albertodumonttdev.devspecai.enums.Language;
 import com.albertodumonttdev.devspecai.enums.ProfessionalLevel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,6 @@ public class SpecRequestDTO {
     @NotBlank(message = "Career objective cannot be blank")
     private String careerObjective;
 
-    @NotBlank(message = "Language cannot be blank")
-    private String language;
+    @NotNull(message = "Language is required")
+    private Language language;
 }

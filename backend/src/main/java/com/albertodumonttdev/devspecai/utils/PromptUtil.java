@@ -1,6 +1,7 @@
 package com.albertodumonttdev.devspecai.utils;
 
 import com.albertodumonttdev.devspecai.dto.SpecRequestDTO;
+import com.albertodumonttdev.devspecai.enums.Language;
 import com.albertodumonttdev.devspecai.enums.ProfessionalLevel;
 
 public class PromptUtil {
@@ -19,6 +20,7 @@ public class PromptUtil {
     public static String buildPrompt(SpecRequestDTO request) {
 
         String translatedLevel = translateLevelToPortuguese(request.getProfessionalLevel());
+        String languageName = request.getLanguage().getDisplayName();
 
         return String.format("""
             Você é um assistente que cria projetos para desenvolvedores com base em três informações: tecnologias a aplicar, nível profissional e objetivo profissional.
@@ -54,8 +56,8 @@ public class PromptUtil {
 
             A resposta deve ser apenas o conteúdo do projeto com **quebras de linha explícitas via \\n**, sem explicações adicionais, sem código markdown e sem HTML.
             """,
-                request.getLanguage(),
-                request.getLanguage(),
+                languageName,
+                languageName,
                 request.getCareerObjective(),
                 request.getTechnologies(),
                 request.getTechnologies(),

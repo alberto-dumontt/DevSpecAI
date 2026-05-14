@@ -32,7 +32,7 @@ Generates a project specification based on user input.
   "technologies": "Java, Spring Boot, Redis",
   "professionalLevel": "JUNIOR",
   "careerObjective": "Backend developer role at a fintech",
-  "language": "English"
+  "language": "en"
 }
 ```
 
@@ -41,7 +41,7 @@ Generates a project specification based on user input.
 | `technologies` | `string` | yes | Technologies to apply in the project |
 | `professionalLevel` | `string` | yes | `JUNIOR` \| `MID` \| `SENIOR` |
 | `careerObjective` | `string` | yes | Target role or career goal |
-| `language` | `string` | yes | Language for the generated spec (e.g. `English`, `Português`, `Español`) |
+| `language` | `string` | yes | `pt-br` \| `en` \| `es` |
 
 **Response**
 ```json
@@ -55,7 +55,7 @@ Generates a project specification based on user input.
 {
   "errorCode": "ValidationError",
   "errorMensagem": null,
-  "details": ["Language cannot be blank"],
+  "details": ["Language is required"],
   "status": 400,
   "path": "/api/spec"
 }
@@ -75,10 +75,11 @@ cd backend
 
 Runs on `http://localhost:8080`
 
-Set the required environment variable before running:
+Set the required environment variables before running:
 
 ```bash
 export COHERE_API_KEY=your_key_here
+export APP_CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 ---
