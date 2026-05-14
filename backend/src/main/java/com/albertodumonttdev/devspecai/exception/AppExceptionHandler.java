@@ -1,5 +1,6 @@
 package com.albertodumonttdev.devspecai.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
+@Slf4j
 @ControllerAdvice
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -63,19 +65,20 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .toList();
 
+        log.warn("Validation failed: fields={}", details);
         return handleException(ex, "ValidationError", null, details, BAD_REQUEST, request);
 
     }
 
     @ExceptionHandler(value = RequestException.class)
     public ResponseEntity<Object> handleRequestException(RequestException ex, WebRequest request) {
-
+        log.warn("Request exception: errorCode={} message={}", ex.getErrorCode(), ex.getMessage());
         return handleException(ex, ex.getErrorCode(), ex.getMessage(), null, BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Object> handleGenenericException(Exception ex, WebRequest request) {
-
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
         return handleException(ex, null, ex.getMessage(), null, INTERNAL_SERVER_ERROR, request);
     }
 
