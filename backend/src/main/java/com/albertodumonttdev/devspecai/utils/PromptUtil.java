@@ -19,15 +19,13 @@ public class PromptUtil {
      */
     public static String buildPrompt(SpecRequestDTO request) {
 
+        Language language = request.getLanguage();
         String translatedLevel = translateLevelToPortuguese(request.getProfessionalLevel());
-        String languageName = request.getLanguage().getDisplayName();
 
         return String.format("""
             Você é um assistente que cria projetos para desenvolvedores com base em três informações: tecnologias a aplicar, nível profissional e objetivo profissional.
 
             Gere uma especificação de projeto no seguinte formato **em texto plano**, utilizando **\\n** para representar quebras de linha entre os blocos.
-
-            **IMPORTANTE:** Toda a especificação, incluindo rótulos e conteúdo, deve ser escrita no seguinte idioma: %s
 
             **IMPORTANTE:** Se qualquer uma das informações fornecidas for irrelevante, sensível, ofensiva, mal-intencionada ou fora do escopo das três variáveis esperadas (tecnologias, nível profissional e objetivo profissional), então:
             - **Não gere nenhuma especificação**;
@@ -36,12 +34,12 @@ public class PromptUtil {
 
             Formato desejado:
 
-            Com base nas tecnologias indicadas, no seu nível profissional atual e no seu objetivo de conquistar uma vaga como %s, o projeto ideal foi estruturado para refletir os conhecimentos exigidos e te preparar com uma experiência prática relevante...\\n
+            %s\\n
 
-            Nome do projeto: [nome criativo e relevante]\\n
-            Descrição: [curta descrição do sistema e do contexto]\\n
-            Tecnologias: %s\\n
-            Objetivos técnicos:\\n
+            %s: [nome criativo e relevante]\\n
+            %s: [curta descrição do sistema e do contexto]\\n
+            %s: %s\\n
+            %s:\\n
             - [tarefa 1]\\n
             - [tarefa 2]\\n
             - [tarefa 3]\\n
@@ -56,10 +54,13 @@ public class PromptUtil {
 
             A resposta deve ser apenas o conteúdo do projeto com **quebras de linha explícitas via \\n**, sem explicações adicionais, sem código markdown e sem HTML.
             """,
-                languageName,
-                languageName,
-                request.getCareerObjective(),
+                language.getDisplayName(),
+                language.formatIntroSentence(request.getCareerObjective()),
+                language.getProjectNameLabel(),
+                language.getDescriptionLabel(),
+                language.getTechnologiesLabel(),
                 request.getTechnologies(),
+                language.getTechnicalObjectivesLabel(),
                 request.getTechnologies(),
                 translatedLevel,
                 request.getCareerObjective()
