@@ -16,4 +16,7 @@ public class SpecRequestDTO {
 
     @NotBlank(message = "Career objective cannot be blank")
     private String careerObjective;
+
+    @NotBlank(message = "Language cannot be blank")
+    private String language;
 }

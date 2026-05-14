@@ -24,11 +24,13 @@ public class PromptUtil {
             Você é um assistente que cria projetos para desenvolvedores com base em três informações: tecnologias a aplicar, nível profissional e objetivo profissional.
 
             Gere uma especificação de projeto no seguinte formato **em texto plano**, utilizando **\\n** para representar quebras de linha entre os blocos.
-            
+
+            **IMPORTANTE:** Toda a especificação, incluindo rótulos e conteúdo, deve ser escrita no seguinte idioma: %s
+
             **IMPORTANTE:** Se qualquer uma das informações fornecidas for irrelevante, sensível, ofensiva, mal-intencionada ou fora do escopo das três variáveis esperadas (tecnologias, nível profissional e objetivo profissional), então:
             - **Não gere nenhuma especificação**;
             - **Não produza nenhuma saída ou justificativa**;
-            - **Retorne apenas a seguinte mensagem**: "Entrada inválida. Não foi possível gerar a especificação de projeto com base nos dados fornecidos."
+            - **Retorne apenas a seguinte mensagem no idioma %s**: "Entrada inválida. Não foi possível gerar a especificação de projeto com base nos dados fornecidos."
 
             Formato desejado:
 
@@ -52,6 +54,8 @@ public class PromptUtil {
 
             A resposta deve ser apenas o conteúdo do projeto com **quebras de linha explícitas via \\n**, sem explicações adicionais, sem código markdown e sem HTML.
             """,
+                request.getLanguage(),
+                request.getLanguage(),
                 request.getCareerObjective(),
                 request.getTechnologies(),
                 request.getTechnologies(),
